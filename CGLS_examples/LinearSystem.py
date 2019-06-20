@@ -27,9 +27,10 @@ from ccpi.optimisation.functions import *
 from ccpi.framework import *
 
 # Problem dimension.
-m = 400
+m = 100
 n = 200
 
+np.random.seed(10)
 # Create matrix A and data b
 Amat = np.asarray( np.random.randn(m, n), dtype=numpy.float32)
 bmat = np.asarray( np.random.randn(m), dtype=numpy.float32)
@@ -51,8 +52,14 @@ x_init = vgx.allocate()
 cgls = CGLS(x_init = x_init, operator = A, data = b)
 cgls.max_iteration = 1000
 cgls.update_objective_interval = 20
+cgls.run(1000, verbose = True)
 
-cgls.run(100, verbose = True)
+
+try:
+    from cvxpy import *
+    cvx_not_installable = True
+except ImportError:
+    cvx_not_installable = False
 
 # Compare with CVX
 x = cp.Variable(n)
@@ -61,6 +68,7 @@ prob = cp.Problem(objective)
 result = prob.solve(solver = cp.SCS)
 
 print('Error = {}'.format((cgls.get_output() - VectorData(x.value)).norm()))
+
 
 
 

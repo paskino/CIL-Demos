@@ -21,10 +21,10 @@
 
 """ 
 
-``Tikhonov`` Regularization Denoising using PDHG algorithm:
+Total Variation Denoising using PDHG algorithm:
 
 
-Problem:     min_{u},   \alpha * ||\nabla u||_{2,2} + Fidelity(u, g)
+Problem:     min_{u},   \alpha * ||\nabla u||_{2,1} + Fidelity(u, g)
 
              \alpha: Regularization parameter
              
@@ -43,14 +43,13 @@ Problem:     min_{u},   \alpha * ||\nabla u||_{2,2} + Fidelity(u, g)
              Method = 1 (PDHG - explicit ):  K = \nabla    
              
              
-             Default: Tikhonov denoising
+             Default: ROF denoising
              noise = Gaussian
              Fidelity = L2NormSquarred 
              method = 0
              
-"""      
-
-from ccpi.framework import ImageData, TestData
+             
+"""
 
 import numpy as np 
 import numpy                          
@@ -59,28 +58,33 @@ import matplotlib.pyplot as plt
 from ccpi.optimisation.algorithms import PDHG
 
 from ccpi.optimisation.operators import BlockOperator, Identity, Gradient
-from ccpi.optimisation.functions import ZeroFunction, L2NormSquared,\
-      BlockFunction, KullbackLeibler, L1Norm
+from ccpi.optimisation.functions import ZeroFunction, L1Norm, \
+                      MixedL21Norm, BlockFunction, L2NormSquared,\
+                          KullbackLeibler
+from ccpi.framework import TestData
+import os, sys
+#import scipy.io
 
-import sys, os
+sys.path.append(os.path.join(sys.prefix, 'share','ccpi'))
+ 
 if int(numpy.version.version.split('.')[1]) > 12:
     from skimage.util import random_noise
 else:
     from demoutil import random_noise
 
-
 # user supplied input
 if len(sys.argv) > 1:
     which_noise = int(sys.argv[1])
 else:
-    which_noise = 0
+    which_noise = 2
 print ("Applying {} noise")
 
 if len(sys.argv) > 2:
     method = sys.argv[2]
 else:
-    method = '0'
+    method = '1'
 print ("method ", method)
+
 
 loader = TestData(data_dir=os.path.join(sys.prefix, 'share','ccpi'))
 data = loader.load(TestData.SHAPES)
@@ -99,7 +103,8 @@ elif noise == 'gaussian':
     n1 = random_noise(data.as_array(), mode = noise, seed = 10)
 else:
     raise ValueError('Unsupported Noise ', noise)
-noisy_data = ImageData(n1)
+noisy_data = ig.allocate()
+noisy_data.fill(n1)
 
 # Show Ground Truth and Noisy Data
 plt.figure(figsize=(10,5))
@@ -113,39 +118,40 @@ plt.title('Noisy Data')
 plt.colorbar()
 plt.show()
 
+
 # Regularisation Parameter depending on the noise distribution
 if noise == 's&p':
-    alpha = 20
+    alpha = 0.8
 elif noise == 'poisson':
-    alpha = 10
+    alpha = 1
 elif noise == 'gaussian':
-    alpha = 5
-    
+    alpha = .3
+
 # fidelity
 if noise == 's&p':
     f2 = L1Norm(b=noisy_data)
 elif noise == 'poisson':
     f2 = KullbackLeibler(noisy_data)
 elif noise == 'gaussian':
-    f2 = 0.5 * L2NormSquared(b=noisy_data)    
+    f2 = 0.5 * L2NormSquared(b=noisy_data)
 
 if method == '0':
 
     # Create operators
-    op1 = Gradient(ig)
+    op1 = Gradient(ig, correlation=Gradient.CORRELATION_SPACE)
     op2 = Identity(ig, ag)
 
     # Create BlockOperator
     operator = BlockOperator(op1, op2, shape=(2,1) ) 
 
     # Create functions      
-    f1 = alpha * L2NormSquared()
-    f = BlockFunction(f1, f2)                                       
+    f = BlockFunction(alpha * MixedL21Norm(), f2) 
     g = ZeroFunction()
     
 else:
     
     operator = Gradient(ig)
+    f =  alpha * MixedL21Norm()
     g = f2
         
     
@@ -156,35 +162,36 @@ normK = operator.norm()
 sigma = 1
 tau = 1/(sigma*normK**2)
 
+
 # Setup and run the PDHG algorithm
 pdhg = PDHG(f=f,g=g,operator=operator, tau=tau, sigma=sigma)
 pdhg.max_iteration = 2000
 pdhg.update_objective_interval = 100
 pdhg.run(2000)
 
-
+# Show results
 plt.figure(figsize=(20,5))
 plt.subplot(1,4,1)
-plt.imshow(data.as_array())
+plt.imshow(data.subset(channel=0).as_array())
 plt.title('Ground Truth')
 plt.colorbar()
 plt.subplot(1,4,2)
-plt.imshow(noisy_data.as_array())
+plt.imshow(noisy_data.subset(channel=0).as_array())
 plt.title('Noisy Data')
 plt.colorbar()
 plt.subplot(1,4,3)
-plt.imshow(pdhg.get_output().as_array())
+plt.imshow(pdhg.get_output().subset(channel=0).as_array())
 plt.title('TV Reconstruction')
 plt.colorbar()
 plt.subplot(1,4,4)
 plt.plot(np.linspace(0,ig.shape[1],ig.shape[1]), data.as_array()[int(ig.shape[0]/2),:], label = 'GTruth')
-plt.plot(np.linspace(0,ig.shape[1],ig.shape[1]), pdhg.get_output().as_array()[int(ig.shape[0]/2),:], label = 'Tikhonov reconstruction')
+plt.plot(np.linspace(0,ig.shape[1],ig.shape[1]), pdhg.get_output().as_array()[int(ig.shape[0]/2),:], label = 'TV reconstruction')
 plt.legend()
 plt.title('Middle Line Profiles')
 plt.show()
 
 
-##%% Check with CVX solution
+#%% Check with CVX solution
 
 from ccpi.optimisation.operators import SparseFiniteDiff
 
@@ -193,6 +200,7 @@ try:
     cvx_not_installable = True
 except ImportError:
     cvx_not_installable = False
+
 
 if cvx_not_installable:
 
@@ -203,15 +211,14 @@ if cvx_not_installable:
     DX = SparseFiniteDiff(ig, direction=1, bnd_cond='Neumann')
     
     # Define Total Variation as a regulariser
-    
-    regulariser = alpha * sum_squares(norm(vstack([DX.matrix() * vec(u), DY.matrix() * vec(u)]), 2, axis = 0))
+    regulariser = alpha * sum(norm(vstack([Constant(DX.matrix()) * vec(u), Constant(DY.matrix()) * vec(u)]), 2, axis = 0))
     
     # choose solver
     if 'MOSEK' in installed_solvers():
         solver = MOSEK
     else:
         solver = SCS      
-    
+
     # fidelity
     if noise == 's&p':
         fidelity = pnorm( u - noisy_data.as_array(),1)
@@ -220,7 +227,7 @@ if cvx_not_installable:
         solver = SCS
     elif noise == 'gaussian':
         fidelity = 0.5 * sum_squares(noisy_data.as_array() - u)
-        
+                
     obj =  Minimize( regulariser +  fidelity)
     prob = Problem(obj)
     result = prob.solve(verbose = True, solver = solver)
@@ -250,8 +257,3 @@ if cvx_not_installable:
             
     print('Primal Objective (CVX) {} '.format(obj.value))
     print('Primal Objective (PDHG) {} '.format(pdhg.objective[-1][0]))
-#
-#
-#
-#
-#

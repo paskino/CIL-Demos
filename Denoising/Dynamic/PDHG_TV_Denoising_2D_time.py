@@ -48,9 +48,17 @@ from ccpi.optimisation.functions import ZeroFunction, L2NormSquared,  \
                       MixedL21Norm, BlockFunction
 
 import os
+import sys
 import tomophantom
 from tomophantom import TomoP2D
 import matplotlib.animation as animation
+
+sys.path.append(os.path.join(sys.prefix, 'share','ccpi'))
+ 
+if int(numpy.version.version.split('.')[1]) > 12:
+    from skimage.util import random_noise
+else:
+    from demoutil import random_noise
 
 # Create phantom for TV 2D dynamic tomography 
 model = 102  # note that the selected model is temporal (2D + time)
@@ -199,7 +207,7 @@ ims2 = []
 ims3 = []
 
 for sl in range(0,np.shape(phantom_2Dt)[0]):
-    
+
     plt.subplot(1,3,1)
     im1 = plt.imshow(phantom_2Dt[sl,:,:], animated=True)
     plt.title('Ground truth')
@@ -214,9 +222,7 @@ for sl in range(0,np.shape(phantom_2Dt)[0]):
     
     ims1.append([im1])
     ims2.append([im2])   
-    ims3.append([im3])       
-
-    
+    ims3.append([im3])           
     
 ani1 = animation.ArtistAnimation(fig3, ims1, interval=500,
                                 repeat_delay=10)

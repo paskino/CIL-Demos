@@ -45,12 +45,19 @@ from ccpi.optimisation.algorithms import PDHG
 from ccpi.optimisation.operators import Gradient
 from ccpi.optimisation.functions import L2NormSquared, MixedL21Norm
 
-from skimage.util import random_noise
-
 import timeit
 import os
+import sys
 from tomophantom import TomoP3D
 import tomophantom
+import numpy
+
+sys.path.append(os.path.join(sys.prefix, 'share','ccpi'))
+ 
+if int(numpy.version.version.split('.')[1]) > 12:
+    from skimage.util import random_noise
+else:
+    from demoutil import random_noise
 
 # Create a phantom from Tomophantom
 print ("Building 3D phantom using TomoPhantom software")

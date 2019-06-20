@@ -57,7 +57,7 @@ from ccpi.optimisation.operators import BlockOperator, Gradient, Identity, \
 from ccpi.optimisation.functions import IndicatorBox, KullbackLeibler, ZeroFunction,\
                       MixedL21Norm, BlockFunction, L2NormSquared
 
-from ccpi.astra.ops import AstraProjectorSimple
+from ccpi.astra.operators import AstraProjectorSimple
 import os, sys
 
 

@@ -42,10 +42,14 @@ from ccpi.optimisation.operators import Gradient, BlockOperator, FiniteDiff
 from ccpi.optimisation.functions import MixedL21Norm, L2NormSquared, BlockFunction, L1Norm, KullbackLeibler                     
 from ccpi.framework import TestData, ImageGeometry
 import os, sys
+
+sys.path.append(os.path.join(sys.prefix, 'share','ccpi'))
+print(sys.path) 
 if int(numpy.version.version.split('.')[1]) > 12:
     from skimage.util import random_noise
 else:
     from demoutil import random_noise
+
 
 # user supplied input
 if len(sys.argv) > 1:

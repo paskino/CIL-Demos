@@ -18,43 +18,39 @@
 # limitations under the License.
 #
 #=========================================================================
+
 """ 
 
-Total Generalised Variation (TGV) Denoising using PDHG algorithm:
+``Tikhonov`` Regularization Denoising using PDHG algorithm:
 
 
-Problem:     min_{u} \alpha * ||\nabla u - w||_{2,1} +
-                     \beta *  || E u ||_{2,1} +
-                     Fidelity(u, g)
-                     
-             \nabla: Gradient operator 
-             E: Symmetrized Gradient operator             
+Problem:     min_{u},   \alpha * ||\nabla u||_{2,2} + Fidelity(u, g)
+
              \alpha: Regularization parameter
-             \beta:  Regularization parameter             
+             
+             \nabla: Gradient operator 
              
              g: Noisy Data 
                           
              Fidelity =  1) L2NormSquarred ( \frac{1}{2} * || u - g ||_{2}^{2} ) if Noise is Gaussian
                          2) L1Norm ( ||u - g||_{1} )if Noise is Salt & Pepper
                          3) Kullback Leibler (\int u - g * log(u) + Id_{u>0})  if Noise is Poisson
-                                
-                          
-             Method = 0 ( PDHG - split ) :  K = [ \nabla, - Identity
-                                                  ZeroOperator, E 
-                                                  Identity, ZeroOperator]
+                                                       
+             Method = 0 ( PDHG - split ) :  K = [ \nabla,
+                                                 Identity]
                           
                                                                     
-             Method = 1 (PDHG - explicit ):  K = [ \nabla, - Identity
-                                                  ZeroOperator, E ] 
-                          
-             Default: TGV denoising
+             Method = 1 (PDHG - explicit ):  K = \nabla    
+             
+             
+             Default: Tikhonov denoising
              noise = Gaussian
              Fidelity = L2NormSquarred 
-             method = 0             
-                                                                
-"""
+             method = 0
+             
+"""      
 
-from ccpi.framework import ImageData
+from ccpi.framework import ImageData, TestData
 
 import numpy as np 
 import numpy                          
@@ -62,13 +58,14 @@ import matplotlib.pyplot as plt
 
 from ccpi.optimisation.algorithms import PDHG
 
-from ccpi.optimisation.operators import BlockOperator, Identity, \
-                        Gradient, SymmetrizedGradient, ZeroOperator
-from ccpi.optimisation.functions import ZeroFunction, L1Norm, \
-                      MixedL21Norm, BlockFunction, KullbackLeibler, L2NormSquared
-                      
-from ccpi.framework import TestData
-import os, sys
+from ccpi.optimisation.operators import BlockOperator, Identity, Gradient
+from ccpi.optimisation.functions import ZeroFunction, L2NormSquared,\
+      BlockFunction, KullbackLeibler, L1Norm
+
+import sys, os
+
+sys.path.append(os.path.join(sys.prefix, 'share','ccpi'))
+ 
 if int(numpy.version.version.split('.')[1]) > 12:
     from skimage.util import random_noise
 else:
@@ -87,7 +84,6 @@ else:
     method = '0'
 print ("method ", method)
 
-
 loader = TestData(data_dir=os.path.join(sys.prefix, 'share','ccpi'))
 data = loader.load(TestData.SHAPES)
 ig = data.geometry
@@ -97,7 +93,7 @@ ag = ig
 noises = ['gaussian', 'poisson', 's&p']
 noise = noises[which_noise]
 if noise == 's&p':
-    n1 = random_noise(data.as_array(), mode = noise, salt_vs_pepper = 0.9, amount=0.2, seed=10)
+    n1 = random_noise(data.as_array(), mode = noise, salt_vs_pepper = 0.9, amount=0.2)
 elif noise == 'poisson':
     scale = 5
     n1 = random_noise( data.as_array()/scale, mode = noise, seed = 10)*scale
@@ -121,58 +117,40 @@ plt.show()
 
 # Regularisation Parameter depending on the noise distribution
 if noise == 's&p':
-    alpha = 0.8
+    alpha = 20
 elif noise == 'poisson':
-    alpha = .3
+    alpha = 10
 elif noise == 'gaussian':
-    alpha = .2
-
-beta = 2 * alpha
-
-# Fidelity
+    alpha = 5
+    
+# fidelity
 if noise == 's&p':
-    f3 = L1Norm(b=noisy_data)
+    f2 = L1Norm(b=noisy_data)
 elif noise == 'poisson':
-    f3 = KullbackLeibler(noisy_data)
+    f2 = KullbackLeibler(noisy_data)
 elif noise == 'gaussian':
-    f3 = 0.5 * L2NormSquared(b=noisy_data)
+    f2 = 0.5 * L2NormSquared(b=noisy_data)    
 
 if method == '0':
-    
+
     # Create operators
-    op11 = Gradient(ig)
-    op12 = Identity(op11.range_geometry())
-    
-    op22 = SymmetrizedGradient(op11.domain_geometry())    
-    op21 = ZeroOperator(ig, op22.range_geometry())
-        
-    op31 = Identity(ig, ag)
-    op32 = ZeroOperator(op22.domain_geometry(), ag)
-    
-    operator = BlockOperator(op11, -1*op12, op21, op22, op31, op32, shape=(3,2) ) 
-        
-    f1 = alpha * MixedL21Norm()
-    f2 = beta * MixedL21Norm() 
-    
-    f = BlockFunction(f1, f2, f3)         
+    op1 = Gradient(ig)
+    op2 = Identity(ig, ag)
+
+    # Create BlockOperator
+    operator = BlockOperator(op1, op2, shape=(2,1) ) 
+
+    # Create functions      
+    f1 = alpha * L2NormSquared()
+    f = BlockFunction(f1, f2)                                       
     g = ZeroFunction()
-        
+    
 else:
     
-    # Create operators
-    op11 = Gradient(ig)
-    op12 = Identity(op11.range_geometry())
-    op22 = SymmetrizedGradient(op11.domain_geometry())    
-    op21 = ZeroOperator(ig, op22.range_geometry())    
+    operator = Gradient(ig)
+    g = f2
+        
     
-    operator = BlockOperator(op11, -1*op12, op21, op22, shape=(2,2) )      
-    
-    f1 = alpha * MixedL21Norm()
-    f2 = beta * MixedL21Norm()     
-    
-    f = BlockFunction(f1, f2)         
-    g = BlockFunction(f3, ZeroFunction())
-     
 # Compute operator Norm
 normK = operator.norm()
 
@@ -186,28 +164,29 @@ pdhg.max_iteration = 2000
 pdhg.update_objective_interval = 100
 pdhg.run(2000)
 
-# Show results
+
 plt.figure(figsize=(20,5))
 plt.subplot(1,4,1)
-plt.imshow(data.subset(channel=0).as_array())
+plt.imshow(data.as_array())
 plt.title('Ground Truth')
 plt.colorbar()
 plt.subplot(1,4,2)
-plt.imshow(noisy_data.subset(channel=0).as_array())
+plt.imshow(noisy_data.as_array())
 plt.title('Noisy Data')
 plt.colorbar()
 plt.subplot(1,4,3)
-plt.imshow(pdhg.get_output()[0].as_array())
-plt.title('TGV Reconstruction')
+plt.imshow(pdhg.get_output().as_array())
+plt.title('TV Reconstruction')
 plt.colorbar()
 plt.subplot(1,4,4)
 plt.plot(np.linspace(0,ig.shape[1],ig.shape[1]), data.as_array()[int(ig.shape[0]/2),:], label = 'GTruth')
-plt.plot(np.linspace(0,ig.shape[1],ig.shape[1]), pdhg.get_output()[0].as_array()[int(ig.shape[0]/2),:], label = 'TGV reconstruction')
+plt.plot(np.linspace(0,ig.shape[1],ig.shape[1]), pdhg.get_output().as_array()[int(ig.shape[0]/2),:], label = 'Tikhonov reconstruction')
 plt.legend()
 plt.title('Middle Line Profiles')
 plt.show()
 
-#%% Check with CVX solution
+
+##%% Check with CVX solution
 
 from ccpi.optimisation.operators import SparseFiniteDiff
 
@@ -217,30 +196,24 @@ try:
 except ImportError:
     cvx_not_installable = False
 
-if cvx_not_installable:    
-    
+if cvx_not_installable:
+
+    ##Construct problem    
     u = Variable(ig.shape)
-    w1 = Variable(ig.shape)
-    w2 = Variable(ig.shape)
     
-    # create TGV regulariser
     DY = SparseFiniteDiff(ig, direction=0, bnd_cond='Neumann')
     DX = SparseFiniteDiff(ig, direction=1, bnd_cond='Neumann')
     
-    regulariser = alpha * sum(norm(vstack([DX.matrix() * vec(u) - vec(w1), \
-                                           DY.matrix() * vec(u) - vec(w2)]), 2, axis = 0)) + \
-                  beta * sum(norm(vstack([ DX.matrix().transpose() * vec(w1), DY.matrix().transpose() * vec(w2), \
-                                      0.5 * ( DX.matrix().transpose() * vec(w2) + DY.matrix().transpose() * vec(w1) ), \
-                                      0.5 * ( DX.matrix().transpose() * vec(w2) + DY.matrix().transpose() * vec(w1) ) ]), 2, axis = 0  ) )  
+    # Define Total Variation as a regulariser
     
-    constraints = []
+    regulariser = alpha * sum_squares(norm(vstack([DX.matrix() * vec(u), DY.matrix() * vec(u)]), 2, axis = 0))
     
     # choose solver
     if 'MOSEK' in installed_solvers():
         solver = MOSEK
     else:
         solver = SCS      
-        
+    
     # fidelity
     if noise == 's&p':
         fidelity = pnorm( u - noisy_data.as_array(),1)
@@ -254,11 +227,11 @@ if cvx_not_installable:
     prob = Problem(obj)
     result = prob.solve(verbose = True, solver = solver)
     
-    diff_cvx = numpy.abs( pdhg.get_output()[0].as_array() - u.value )
+    diff_cvx = numpy.abs( pdhg.get_output().as_array() - u.value )
         
     plt.figure(figsize=(15,15))
     plt.subplot(3,1,1)
-    plt.imshow(pdhg.get_output()[0].as_array())
+    plt.imshow(pdhg.get_output().as_array())
     plt.title('PDHG solution')
     plt.colorbar()
     plt.subplot(3,1,2)
@@ -271,7 +244,7 @@ if cvx_not_installable:
     plt.colorbar()
     plt.show()    
     
-    plt.plot(np.linspace(0,ig.shape[1],ig.shape[1]), pdhg.get_output()[0].as_array()[int(ig.shape[0]/2),:], label = 'PDHG')
+    plt.plot(np.linspace(0,ig.shape[1],ig.shape[1]), pdhg.get_output().as_array()[int(ig.shape[0]/2),:], label = 'PDHG')
     plt.plot(np.linspace(0,ig.shape[1],ig.shape[1]), u.value[int(ig.shape[0]/2),:], label = 'CVX')
     plt.legend()
     plt.title('Middle Line Profiles')
@@ -279,3 +252,8 @@ if cvx_not_installable:
             
     print('Primal Objective (CVX) {} '.format(obj.value))
     print('Primal Objective (PDHG) {} '.format(pdhg.objective[-1][0]))
+#
+#
+#
+#
+#

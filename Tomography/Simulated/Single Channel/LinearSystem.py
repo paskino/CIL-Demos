@@ -19,14 +19,13 @@
 #
 #=========================================================================
 
-import cvxpy as cp
 import numpy as np
 from ccpi.optimisation.operators import *
 from ccpi.optimisation.algorithms import *
 from ccpi.optimisation.functions import *
 from ccpi.framework import *
 
-# Problem dimension.
+#Problem dimension.
 m = 400
 n = 200
 
@@ -54,13 +53,20 @@ cgls.update_objective_interval = 20
 
 cgls.run(100, verbose = True)
 
-# Compare with CVX
-x = cp.Variable(n)
-objective = cp.Minimize(cp.sum_squares(A.A*x - b.as_array()))
-prob = cp.Problem(objective)
-result = prob.solve(solver = cp.SCS)
+try:
+    import cvxpy as cp
+    cvx = True
+except ImportError:
+    cvx = False
 
-print('Error = {}'.format((cgls.get_output() - VectorData(x.value)).norm()))
+if not cvx:
+    print("Please install the cvxpy module to run this demo")
+else:
+    # Compare with CVX
+    x = cp.Variable(n)
+    objective = cp.Minimize(cp.sum_squares(A.A*x - b.as_array()))
+    prob = cp.Problem(objective)
+    result = prob.solve(solver = cp.SCS)
 
-
+    print('Error = {}'.format((cgls.get_output() - VectorData(np.asarray(x.value).T[0])).norm()))
 

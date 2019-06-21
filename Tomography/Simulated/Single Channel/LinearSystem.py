@@ -26,9 +26,10 @@ from ccpi.optimisation.functions import *
 from ccpi.framework import *
 
 #Problem dimension.
-m = 400
-n = 200
+m = 200
+n = 100
 
+np.random.seed(10)
 # Create matrix A and data b
 Amat = np.asarray( np.random.randn(m, n), dtype=numpy.float32)
 bmat = np.asarray( np.random.randn(m), dtype=numpy.float32)
@@ -50,8 +51,7 @@ x_init = vgx.allocate()
 cgls = CGLS(x_init = x_init, operator = A, data = b)
 cgls.max_iteration = 1000
 cgls.update_objective_interval = 20
-
-cgls.run(100, verbose = True)
+cgls.run(1000, verbose = True)
 
 try:
     import cvxpy as cp
@@ -69,4 +69,5 @@ else:
     result = prob.solve(solver = cp.SCS)
 
     print('Error = {}'.format((cgls.get_output() - VectorData(np.asarray(x.value).T[0])).norm()))
+
 

@@ -35,7 +35,7 @@ Problem:     min_{x} \alpha * ||\nabla x||_{2,1} + \frac{1}{2} * || x - g ||_{2}
                                                                 
 """
 
-from ccpi.framework import ImageData, ImageGeometry
+from ccpi.framework import ImageData, ImageGeometry, TestData
 
 import numpy as np 
 import numpy                          
@@ -52,13 +52,6 @@ import sys
 import tomophantom
 from tomophantom import TomoP2D
 import matplotlib.animation as animation
-
-sys.path.append(os.path.join(sys.prefix, 'share','ccpi'))
- 
-if int(numpy.version.version.split('.')[1]) > 12:
-    from skimage.util import random_noise
-else:
-    from demoutil import random_noise
 
 # Create phantom for TV 2D dynamic tomography 
 model = 102  # note that the selected model is temporal (2D + time)
@@ -234,11 +227,4 @@ ani3 = animation.ArtistAnimation(fig3, ims3, interval=500,
                                 repeat_delay=10)
 
 plt.show() 
-
-
-
-
-
-
-
 

@@ -39,7 +39,7 @@ Problem:     min_{x} \alpha * ||\nabla x||_{2,1} + \frac{1}{2} * || x - g ||_{2}
                                                                 
 """
 
-from ccpi.framework import ImageData, ImageGeometry                       
+from ccpi.framework import ImageData, ImageGeometry, TestData                       
 import matplotlib.pyplot as plt
 from ccpi.optimisation.algorithms import PDHG
 from ccpi.optimisation.operators import Gradient
@@ -51,13 +51,6 @@ import sys
 from tomophantom import TomoP3D
 import tomophantom
 import numpy
-
-sys.path.append(os.path.join(sys.prefix, 'share','ccpi'))
- 
-if int(numpy.version.version.split('.')[1]) > 12:
-    from skimage.util import random_noise
-else:
-    from demoutil import random_noise
 
 # Create a phantom from Tomophantom
 print ("Building 3D phantom using TomoPhantom software")
@@ -73,7 +66,7 @@ phantom_tm = TomoP3D.Model(model, N, path_library3D)
 # Create noisy data. Apply Gaussian noise
 ig = ImageGeometry(voxel_num_x=N, voxel_num_y=N, voxel_num_z=N)
 ag = ig
-n1 = random_noise(phantom_tm, mode = 'gaussian', mean=0, var = 0.001, seed=10)
+n1 = TestData.random_noise(phantom_tm, mode = 'gaussian', mean=0, var = 0.001, seed=10)
 noisy_data = ImageData(n1)
 
 # Show results

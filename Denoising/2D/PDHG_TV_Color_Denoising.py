@@ -41,15 +41,8 @@ from ccpi.optimisation.algorithms import PDHG
 from ccpi.optimisation.operators import Gradient, BlockOperator, FiniteDiff
 from ccpi.optimisation.functions import MixedL21Norm, L2NormSquared, BlockFunction, L1Norm, KullbackLeibler                     
 from ccpi.framework import TestData, ImageGeometry
-import os, sys
-
-sys.path.append(os.path.join(sys.prefix, 'share','ccpi'))
-print(sys.path) 
-if int(numpy.version.version.split('.')[1]) > 12:
-    from skimage.util import random_noise
-else:
-    from demoutil import random_noise
-
+import os
+import sys
 
 # user supplied input
 if len(sys.argv) > 1:
@@ -67,12 +60,12 @@ ag = ig
 noises = ['gaussian', 'poisson', 's&p']
 noise = noises[which_noise]
 if noise == 's&p':
-    n1 = random_noise(data.as_array(), mode = noise, salt_vs_pepper = 0.9, amount=0.2)
+    n1 = TestData.random_noise(data.as_array(), mode = noise, salt_vs_pepper = 0.9, amount=0.2)
 elif noise == 'poisson':
     scale = 5
-    n1 = random_noise( data.as_array()/scale, mode = noise, seed = 10)*scale
+    n1 = TestData.random_noise( data.as_array()/scale, mode = noise, seed = 10)*scale
 elif noise == 'gaussian':
-    n1 = random_noise(data.as_array(), mode = noise, seed = 10)
+    n1 = TestData.random_noise(data.as_array(), mode = noise, seed = 10)
 else:
     raise ValueError('Unsupported Noise ', noise)
 noisy_data = ig.allocate()

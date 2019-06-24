@@ -62,14 +62,9 @@ from ccpi.optimisation.operators import BlockOperator, Identity, Gradient
 from ccpi.optimisation.functions import ZeroFunction, L2NormSquared,\
       BlockFunction, KullbackLeibler, L1Norm
 
-import sys, os
+import os
+import sys
 
-sys.path.append(os.path.join(sys.prefix, 'share','ccpi'))
- 
-if int(numpy.version.version.split('.')[1]) > 12:
-    from skimage.util import random_noise
-else:
-    from demoutil import random_noise
 
 # user supplied input
 if len(sys.argv) > 1:
@@ -93,12 +88,12 @@ ag = ig
 noises = ['gaussian', 'poisson', 's&p']
 noise = noises[which_noise]
 if noise == 's&p':
-    n1 = random_noise(data.as_array(), mode = noise, salt_vs_pepper = 0.9, amount=0.2)
+    n1 = TestData.random_noise(data.as_array(), mode = noise, salt_vs_pepper = 0.9, amount=0.2)
 elif noise == 'poisson':
     scale = 5
-    n1 = random_noise( data.as_array()/scale, mode = noise, seed = 10)*scale
+    n1 = TestData.random_noise(data.as_array()/scale, mode = noise, seed = 10)*scale
 elif noise == 'gaussian':
-    n1 = random_noise(data.as_array(), mode = noise, seed = 10)
+    n1 = TestData.random_noise(data.as_array(), mode = noise, seed = 10)
 else:
     raise ValueError('Unsupported Noise ', noise)
 noisy_data = ImageData(n1)
@@ -192,11 +187,14 @@ from ccpi.optimisation.operators import SparseFiniteDiff
 
 try:
     from cvxpy import *
-    cvx_not_installable = True
-except ImportError:
-    cvx_not_installable = False
 
-if cvx_not_installable:
+    cvx_installable = True
+except ImportError:
+    cvx_installable = False
+
+if not cvx_installable:
+    print("Install CVXPY module to compare with CVX solution")
+else:
 
     ##Construct problem    
     u = Variable(ig.shape)

@@ -225,7 +225,7 @@ else:
                 
     obj =  Minimize( regulariser +  fidelity)
     prob = Problem(obj)
-    result = prob.solve(verbose = True, solver = solver)
+    result = prob.solve(verbose = True, solver = solver, max_iters = pdhg.max_iteration)
     
     diff_cvx = numpy.abs( pdhg.get_output().as_array() - u.value )
         

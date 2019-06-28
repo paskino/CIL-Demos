@@ -26,8 +26,8 @@ from ccpi.optimisation.functions import *
 from ccpi.framework import *
 
 #Problem dimension.
-m = 200
-n = 100
+m = 100
+n = 1000
 
 np.random.seed(10)
 # Create matrix A and data b
@@ -68,6 +68,6 @@ else:
     prob = cp.Problem(objective)
     result = prob.solve(solver = cp.SCS)
 
-    print('Error = {}'.format((cgls.get_output() - VectorData(np.asarray(x.value).T[0])).norm()))
+    print('Error = {}'.format((cgls.get_output() - VectorData(np.asarray(x.value))).norm()))
 
 

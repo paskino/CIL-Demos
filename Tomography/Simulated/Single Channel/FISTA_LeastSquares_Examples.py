@@ -187,11 +187,15 @@ if cvx_not_installable:
     
     regulariser = alpha**2 * sum_squares(norm(vstack([DX.matrix() * vec(u), DY.matrix() * vec(u)]), 2, axis = 0))
 
-    solver = MOSEK
+    if 'MOSEK' in installed_solvers():
+        solver = MOSEK
+    else:
+        solver = SCS
+
     obj =  Minimize(fidelity + regulariser)
     constraints = [u>=0, u<=1]
     prob = Problem(obj, constraints)
-    result = prob.solve(verbose = True, solver = solver)   
+    result = prob.solve(verbose = True, solver = solver, max_iters=2000)   
       
     diff_cvx = numpy.abs( fista1.get_output().as_array() - np.reshape(u.value, ig.shape ))
            

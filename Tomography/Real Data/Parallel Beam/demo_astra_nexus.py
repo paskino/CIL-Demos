@@ -55,7 +55,7 @@ ag = padded_data.geometry
 ig = ImageGeometry(voxel_num_x=ag.pixel_num_h,
                    voxel_num_y=ag.pixel_num_h, 
                    voxel_num_z=ag.pixel_num_v)
-
+ag.dimension_labels = ['vertical','angle','horizontal']
 # Define the projector object
 print ("Define projector")
 Cop = AstraProjector3DSimple(ig, ag)
@@ -78,6 +78,7 @@ opt = {'tol': 1e-4, 'iter': 100}
 CGLS_alg = CGLS()
 CGLS_alg.set_up(x_init, Cop, padded_data)
 CGLS_alg.max_iteration = 2000
+CGLS_alg.update_objective_interval = 10
 CGLS_alg.run(opt['iter'])
 
 x_CGLS = CGLS_alg.get_output()
@@ -127,6 +128,7 @@ f = Norm2Sq(Cop,padded_data,c=0.5)
 FISTA_alg = FISTA()
 FISTA_alg.set_up(x_init=x_init, f=f)
 FISTA_alg.max_iteration = 2000
+FISTA_alg.update_objective_interval = 10
 FISTA_alg.run(opt['iter'])
 x_FISTA = FISTA_alg.get_output()
 
@@ -167,6 +169,7 @@ g0 = lam * L1Norm()
 FISTA_alg1 = FISTA()
 FISTA_alg1.set_up(x_init=x_init, f=f, g=g0)
 FISTA_alg1.max_iteration = 2000
+FISTA_alg1.update_objective_interval = 10
 FISTA_alg1.run(opt['iter'])
 x_FISTA1 = FISTA_alg1.get_output()
 

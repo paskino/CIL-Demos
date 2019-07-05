@@ -45,20 +45,16 @@ from ccpi.optimisation.operators import Gradient
 from ccpi.optimisation.functions import KullbackLeibler, L2NormSquared, FunctionOperatorComposition
 
 import os, sys
-if int(numpy.version.version.split('.')[1]) > 12:
-    from skimage.util import random_noise
-else:
-    from demoutil import random_noise
 from ccpi.framework import TestData
 
 loader = TestData(data_dir=os.path.join(sys.prefix, 'share','ccpi'))
 data = loader.load(TestData.SHAPES)
 ig = data.geometry
 ag = ig
-
+N=300
 # Create Noisy data with Poisson noise
 scale = 5
-n1 = random_noise( data.as_array()/scale, mode = 'poisson', seed = 10)*scale
+n1 = TestData.random_noise( data.as_array()/scale, mode = 'poisson', seed = 10)*scale
 noisy_data = ImageData(n1)
 
 # Show Ground Truth and Noisy Data
@@ -145,13 +141,13 @@ from ccpi.optimisation.operators import SparseFiniteDiff
 
 try:
     from cvxpy import *
-    cvx_not_installable = True
+    cvx = True
 except ImportError:
-    cvx_not_installable = False
+    cvx = False
 
-
-if cvx_not_installable:
-
+if not cvx:
+    print("Please install the cvxpy module to run this demo")
+else:
     ##Construct problem    
     u1 = Variable(ig.shape)
     q = Variable()
@@ -168,9 +164,9 @@ if cvx_not_installable:
     obj =  Minimize( regulariser +  q)
     prob = Problem(obj, constraints)
     result = prob.solve(verbose = True, solver = solver)
-    
-    diff_cvx = numpy.abs( fista.get_output().as_array() - u1.value )
-     
+
+    diff_cvx = numpy.abs( fista.get_output().as_array() - u1.value)
+  
     
     plt.figure(figsize=(15,15))
     plt.subplot(3,1,1)

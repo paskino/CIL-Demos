@@ -132,7 +132,11 @@ if cvx_not_installable:
     
     fidelity =  sum_squares(ProjMat * u - tmp)
 
-    solver = MOSEK
+    if 'MOSEK' in installed_solvers():
+        solver = MOSEK
+    else:
+        solver = SCS
+
     obj =  Minimize(fidelity)
     prob = Problem(obj)
     result = prob.solve(verbose = True, solver = solver)    

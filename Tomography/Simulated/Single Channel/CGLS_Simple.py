@@ -107,12 +107,13 @@ import numpy
 
 try:
     from cvxpy import *
-    cvx_not_installable = True
+    cvx = True
 except ImportError:
-    cvx_not_installable = False
-    
-if cvx_not_installable:
-    
+    cvx = False
+
+if not cvx:
+    print("Install CVXPY module to compare with CVX solution")
+else:
     ##Construct problem    
     u = Variable(N*N)
 
@@ -130,7 +131,11 @@ if cvx_not_installable:
     
     fidelity =  sum_squares(ProjMat * u - tmp)
 
-    solver = MOSEK
+    if 'MOSEK' in installed_solvers():
+        solver = MOSEK
+    else:
+        solver = SCS
+
     obj =  Minimize(fidelity)
     prob = Problem(obj)
     result = prob.solve(verbose = True, solver = solver)    

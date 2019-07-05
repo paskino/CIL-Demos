@@ -35,7 +35,7 @@ Problem:     min_{x} \alpha * ||\nabla x||_{2,1} + \frac{1}{2} * || x - g ||_{2}
                                                                 
 """
 
-from ccpi.framework import ImageData, ImageGeometry
+from ccpi.framework import ImageData, ImageGeometry, TestData
 
 import numpy as np 
 import numpy                          
@@ -48,6 +48,7 @@ from ccpi.optimisation.functions import ZeroFunction, L2NormSquared,  \
                       MixedL21Norm, BlockFunction
 
 import os
+import sys
 import tomophantom
 from tomophantom import TomoP2D
 import matplotlib.animation as animation
@@ -199,7 +200,7 @@ ims2 = []
 ims3 = []
 
 for sl in range(0,np.shape(phantom_2Dt)[0]):
-    
+
     plt.subplot(1,3,1)
     im1 = plt.imshow(phantom_2Dt[sl,:,:], animated=True)
     plt.title('Ground truth')
@@ -214,9 +215,7 @@ for sl in range(0,np.shape(phantom_2Dt)[0]):
     
     ims1.append([im1])
     ims2.append([im2])   
-    ims3.append([im3])       
-
-    
+    ims3.append([im3])           
     
 ani1 = animation.ArtistAnimation(fig3, ims1, interval=500,
                                 repeat_delay=10)
@@ -228,11 +227,4 @@ ani3 = animation.ArtistAnimation(fig3, ims3, interval=500,
                                 repeat_delay=10)
 
 plt.show() 
-
-
-
-
-
-
-
 

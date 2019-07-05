@@ -64,7 +64,8 @@ if geometry=='0':
                              detectors,det_w)
   
 elif geometry=='1':
-    
+    detectors = int(np.sqrt(2)*N)  
+    det_w = 1.0
     SourceOrig = 200
     OrigDetec = 0
     angles = np.linspace(0,2*np.pi,angles_num)
@@ -160,12 +161,13 @@ from ccpi.optimisation.operators import SparseFiniteDiff
 
 try:
     from cvxpy import *
-    cvx_not_installable = True
+    cvx = True
 except ImportError:
-    cvx_not_installable = False
-    
-if cvx_not_installable:
-    
+    cvx = False
+
+if not cvx:
+    print("Install CVXPY module to compare with CVX solution")
+else:
     ##Construct problem    
     u = Variable(N*N)
     DY = SparseFiniteDiff(ig, direction=0, bnd_cond='Neumann')
@@ -187,11 +189,15 @@ if cvx_not_installable:
     
     regulariser = alpha**2 * sum_squares(norm(vstack([DX.matrix() * vec(u), DY.matrix() * vec(u)]), 2, axis = 0))
 
-    solver = MOSEK
+    if 'MOSEK' in installed_solvers():
+        solver = MOSEK
+    else:
+        solver = SCS
+
     obj =  Minimize(fidelity + regulariser)
     constraints = [u>=0, u<=1]
     prob = Problem(obj, constraints)
-    result = prob.solve(verbose = True, solver = solver)   
+    result = prob.solve(verbose = True, solver = solver)
       
     diff_cvx = numpy.abs( fista1.get_output().as_array() - np.reshape(u.value, ig.shape ))
            

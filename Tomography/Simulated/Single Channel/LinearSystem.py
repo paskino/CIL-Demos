@@ -19,21 +19,21 @@
 #
 #=========================================================================
 
-import cvxpy as cp
-import numpy as np
+import numpy
 from ccpi.optimisation.operators import *
 from ccpi.optimisation.algorithms import *
 from ccpi.optimisation.functions import *
 from ccpi.framework import *
 
 # Problem dimension.
-m = 100
+m = 200
 n = 200
 
-np.random.seed(10)
+numpy.random.seed(10)
+
 # Create matrix A and data b
-Amat = np.asarray( np.random.randn(m, n), dtype=numpy.float32)
-bmat = np.asarray( np.random.randn(m), dtype=numpy.float32)
+Amat = numpy.asarray( numpy.random.randn(m, n), dtype = numpy.float32)
+bmat = numpy.asarray( numpy.random.randn(m), dtype=numpy.float32)
 
 # Geometries for data and solution
 vgb = VectorGeometry(m)
@@ -43,31 +43,41 @@ b = vgb.allocate(0, dtype=numpy.float32)
 b.fill(bmat)
 A = LinearOperatorMatrix(Amat)
 
-print('Rank of A is {} '.format(np.linalg.matrix_rank(Amat)))
-
-
 # Setup and run CGLS
 x_init = vgx.allocate()
 
 cgls = CGLS(x_init = x_init, operator = A, data = b)
-cgls.max_iteration = 1000
-cgls.update_objective_interval = 20
-cgls.run(1000, verbose = True)
-
+cgls.max_iteration = 2000
+cgls.update_objective_interval = 200
+cgls.run(2000, verbose = True)
 
 try:
     from cvxpy import *
-    cvx_not_installable = True
+    cvx = True
 except ImportError:
-    cvx_not_installable = False
+    cvx = False
 
-# Compare with CVX
-x = cp.Variable(n)
-objective = cp.Minimize(cp.sum_squares(A.A*x - b.as_array()))
-prob = cp.Problem(objective)
-result = prob.solve(solver = cp.SCS)
+if not cvx:
+    print("Install CVXPY module to compare with CVX solution")
+else:
+    # choose solver
+    if 'MOSEK' in installed_solvers():
+        solver = MOSEK
+    else:
+        solver = SCS 
 
-print('Error = {}'.format((cgls.get_output() - VectorData(x.value)).norm()))
+    # Compare with CVX
+    x = Variable(n)
+    obj = Minimize(sum_squares(A.A*x - b.as_array()))
+    prob = Problem(obj)
+
+    result = prob.solve(solver = solver)
+
+    diff_sol = x.value - cgls.get_output().as_array()
+ 
+    print('Error |CVX - CGLS| = {}'.format(numpy.sum(numpy.abs(diff_sol))))
+    print('CVX objective = {}'.format(obj.value))
+    print('CGLS objective = {}'.format(cgls.objective[-1]))
 
 
 

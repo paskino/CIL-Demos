@@ -60,7 +60,6 @@ except ImportError:
 if not cvx:
     print("Install CVXPY module to compare with CVX solution")
 else:
-
     # choose solver
     if 'MOSEK' in installed_solvers():
         solver = MOSEK

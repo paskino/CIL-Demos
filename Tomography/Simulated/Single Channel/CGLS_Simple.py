@@ -110,9 +110,10 @@ try:
     cvx = True
 except ImportError:
     cvx = False
-    
-if cvx:
-    
+
+if not cvx:
+    print("Install CVXPY module to compare with CVX solution")
+else:
     ##Construct problem    
     u = Variable(N*N)
 

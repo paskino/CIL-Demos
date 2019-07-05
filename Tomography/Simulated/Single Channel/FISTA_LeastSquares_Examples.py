@@ -161,12 +161,13 @@ from ccpi.optimisation.operators import SparseFiniteDiff
 
 try:
     from cvxpy import *
-    cvx_not_installable = True
+    cvx = True
 except ImportError:
-    cvx_not_installable = False
-    
-if cvx_not_installable:
-    
+    cvx = False
+
+if not cvx:
+    print("Install CVXPY module to compare with CVX solution")
+else:
     ##Construct problem    
     u = Variable(N*N)
     DY = SparseFiniteDiff(ig, direction=0, bnd_cond='Neumann')
@@ -196,7 +197,7 @@ if cvx_not_installable:
     obj =  Minimize(fidelity + regulariser)
     constraints = [u>=0, u<=1]
     prob = Problem(obj, constraints)
-    result = prob.solve(verbose = True, solver = solver, max_iters=2000)   
+    result = prob.solve(verbose = True, solver = solver)
       
     diff_cvx = numpy.abs( fista1.get_output().as_array() - np.reshape(u.value, ig.shape ))
            

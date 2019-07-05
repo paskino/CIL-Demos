@@ -190,12 +190,11 @@ from ccpi.optimisation.operators import SparseFiniteDiff
 
 try:
     from cvxpy import *
-
-    cvx_installable = True
+    cvx = True
 except ImportError:
-    cvx_installable = False
+    cvx = False
 
-if not cvx_installable:
+if not cvx:
     print("Install CVXPY module to compare with CVX solution")
 else:
 
@@ -225,7 +224,8 @@ else:
                 
     obj =  Minimize( regulariser +  fidelity)
     prob = Problem(obj)
-    result = prob.solve(verbose = True, solver = solver, max_iters = pdhg.max_iteration)
+
+    result = prob.solve(verbose = True, solver = solver, max_iters=10)
     
     diff_cvx = numpy.abs( pdhg.get_output().as_array() - u.value )
         

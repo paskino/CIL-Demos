@@ -141,13 +141,13 @@ from ccpi.optimisation.operators import SparseFiniteDiff
 
 try:
     from cvxpy import *
-    cvx_not_installable = True
+    cvx = True
 except ImportError:
-    cvx_not_installable = False
+    cvx = False
 
-
-if cvx_not_installable:
-
+if not cvx:
+    print("Please install the cvxpy module to run this demo")
+else:
     ##Construct problem    
     u1 = Variable(ig.shape)
     q = Variable()
@@ -163,10 +163,10 @@ if cvx_not_installable:
     solver = SCS
     obj =  Minimize( regulariser +  q)
     prob = Problem(obj, constraints)
-    result = prob.solve(verbose = True, solver = solver, max_iters = fista.max_iteration )
-    
-    diff_cvx = numpy.abs( fista.get_output().as_array() - u1.value )
-     
+    result = prob.solve(verbose = True, solver = solver)
+
+    diff_cvx = numpy.abs( fista.get_output().as_array() - u1.value)
+  
     
     plt.figure(figsize=(15,15))
     plt.subplot(3,1,1)

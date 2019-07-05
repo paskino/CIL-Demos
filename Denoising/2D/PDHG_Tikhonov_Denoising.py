@@ -188,11 +188,11 @@ from ccpi.optimisation.operators import SparseFiniteDiff
 try:
     from cvxpy import *
 
-    cvx_installable = True
+    cvx = True
 except ImportError:
-    cvx_installable = False
+    cvx = False
 
-if not cvx_installable:
+if not cvx:
     print("Install CVXPY module to compare with CVX solution")
 else:
 

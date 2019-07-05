@@ -107,11 +107,11 @@ import numpy
 
 try:
     from cvxpy import *
-    cvx_not_installable = True
+    cvx = True
 except ImportError:
-    cvx_not_installable = False
+    cvx = False
     
-if cvx_not_installable:
+if cvx:
     
     ##Construct problem    
     u = Variable(N*N)

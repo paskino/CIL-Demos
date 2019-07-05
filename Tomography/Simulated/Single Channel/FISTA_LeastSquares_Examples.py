@@ -64,7 +64,8 @@ if geometry=='0':
                              detectors,det_w)
   
 elif geometry=='1':
-    
+    detectors = int(np.sqrt(2)*N)  
+    det_w = 1.0
     SourceOrig = 200
     OrigDetec = 0
     angles = np.linspace(0,2*np.pi,angles_num)

@@ -121,11 +121,7 @@ plt.show()
 
 # Create least squares object instance with projector and data.
 print ("Create least squares object instance with projector and data.")
-
-L_test = 2.0*0.5*(Cop.norm()**2)
-
 f = Norm2Sq(Cop,padded_data,c=0.5)
-print("hello! ", L_test)
 
 # Run FISTA for least squares without constraints
 FISTA_alg = FISTA()

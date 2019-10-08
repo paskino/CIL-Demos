@@ -31,7 +31,7 @@ def display_slice(datacontainer, direction, title='Title '):
         
     return get_slice_3D
     
-def interactive_slice_display(data, direction):
+def islicer(data, direction):
     '''Creates an interactive integer slider that slices a 3D volume along direction
     
     :param data: DataContainer

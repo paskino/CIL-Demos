@@ -42,3 +42,29 @@ def islicer(data, direction):
     interact(display_slice(data,direction), 
          x=widgets.IntSlider(min=0, max=data.shape[direction]-1, step=1, 
                              value=0, continuous_update=False));
+    
+    
+
+def setup_iplot2D():
+    '''creates a matplotlib figure'''
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.ion()
+    im = fig.add_subplot(122)
+    im.imshow(x_init.as_array())
+    fig.show()
+    fig.canvas.draw()
+
+    residuals = []
+    iterations = []
+    return fig, ax, im, iterations, residuals
+    
+
+def iplot2D(iteration, last_objective, x):
+    '''callback to change the matplotlib figure created with setup_iplot2D'''
+    residuals.append(last_objective)
+    iterations.append(iteration)
+    ax.clear()
+    ax.plot(iterations, residuals)
+    im.imshow(alg.get_output().as_array())
+    fig.canvas.draw()

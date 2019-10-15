@@ -29,7 +29,7 @@ def display_slice(datacontainer, direction, auto_range, title='Title '):
         ax = fig.add_subplot(gs[0, 1])
         plt.colorbar(aximg, cax=ax)
         plt.tight_layout()
-        if auto_range:
+        if auto_range == "true":
             aximg.set_clim(min_value,max_value)
             
         plt.show()

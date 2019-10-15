@@ -45,7 +45,7 @@ def islicer(data, direction):
     
     
 
-def setup_iplot2D():
+def setup_iplot2D(x_init):
     '''creates a matplotlib figure'''
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -60,11 +60,14 @@ def setup_iplot2D():
     return fig, ax, im, iterations, residuals
     
 
-def iplot2D(iteration, last_objective, x):
+
+def iplot2D(fig, ax, im, iterations, residuals):
     '''callback to change the matplotlib figure created with setup_iplot2D'''
-    residuals.append(last_objective)
-    iterations.append(iteration)
-    ax.clear()
-    ax.plot(iterations, residuals)
-    im.imshow(alg.get_output().as_array())
-    fig.canvas.draw()
+    def update(iteration, last_objective, x):
+        residuals.append(last_objective)
+        iterations.append(iteration)
+        ax.clear()
+        ax.plot(iterations, residuals)
+        im.imshow(x.as_array())
+        fig.canvas.draw()
+    return update

@@ -1,5 +1,4 @@
 # imports for plotting
-from __future__ import print_function
 from ipywidgets import interact, interactive, fixed, interact_manual
 import ipywidgets as widgets
 import matplotlib.pyplot as plt
@@ -31,7 +30,7 @@ def display_slice(datacontainer, direction, title='Title'):
         
     return get_slice_3D
     
-def islicer(data, direction):
+def islicer(data, direction,title='Title'):
     '''Creates an interactive integer slider that slices a 3D volume along direction
     
     :param data: DataContainer
@@ -39,7 +38,7 @@ def islicer(data, direction):
     '''
     if direction in data.dimension_labels.values():
         direction = data.get_dimension_axis(direction)
-    interact(display_slice(data,direction), 
+    interact(display_slice(data,direction,title), 
          x=widgets.IntSlider(min=0, max=data.shape[direction]-1, step=1, 
                              value=0, continuous_update=False));
     

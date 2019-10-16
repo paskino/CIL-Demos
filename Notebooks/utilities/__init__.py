@@ -1,5 +1,6 @@
 # imports for plotting
 from __future__ import print_function
+from __future__ import division
 from ipywidgets import interact, interactive, fixed, interact_manual
 import ipywidgets as widgets
 import matplotlib.pyplot as plt
@@ -88,7 +89,7 @@ def plotter2D(datacontainers, titles, fix_range=False, stretch_y=False):
         titles = [titles]
     
     nplots = len(datacontainers)
-    rows = round((nplots+0.5)/2.0)
+    rows = int(round((nplots+0.5)/2.0))
 
     fig, (ax) = plt.subplots(rows, 2,figsize=(15,15))
 

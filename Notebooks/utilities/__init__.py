@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib import gridspec
 
 
-def display_slice(datacontainer, direction, title='Title '):
+def display_slice(datacontainer, direction, title='Title'):
     
     container = datacontainer.as_array()
     def get_slice_3D(x):
@@ -22,7 +22,7 @@ def display_slice(datacontainer, direction, title='Title '):
         # image
         ax = fig.add_subplot(gs[0, 0])
         aximg = ax.imshow(img)
-        ax.set_title(title + "slice {}".format(x))
+        ax.set_title("{} {}".format(title, x))
         # colorbar
         ax = fig.add_subplot(gs[0, 1])
         plt.colorbar(aximg, cax=ax)

@@ -8,7 +8,7 @@ from matplotlib import gridspec
 import numpy
 import numpy as np
 
-def display_slice(datacontainer, direction, title='Title '):
+def display_slice(datacontainer, direction, title='Title ', fix_range=False,data_range=None):
     container = datacontainer.as_array()
     
     def get_slice_3D(x):
@@ -25,23 +25,31 @@ def display_slice(datacontainer, direction, title='Title '):
         ax = fig.add_subplot(gs[0, 0])
         aximg = ax.imshow(img)
         ax.set_title(title + "slice {}".format(x))
+        
         # colorbar
         ax = fig.add_subplot(gs[0, 1])
         plt.colorbar(aximg, cax=ax)
+        
+        if(fix_range == True):
+            aximg.set_clim(data_range[0], data_range[1])
+           
         plt.tight_layout()          
         plt.show()
         
     return get_slice_3D
     
-def islicer(data, direction):
+def islicer(data, direction, fix_range=False,data_range=None):
     '''Creates an interactive integer slider that slices a 3D volume along direction
     
     :param data: DataContainer
     :param direction: slice direction, int, should be 0,1,2 or the axis label
     '''
+    if data_range is None:
+        data_range = (np.amin(data.as_array()), np.amax(data.as_array()))
+   
     if direction in data.dimension_labels.values():
         direction = data.get_dimension_axis(direction)
-    interact(display_slice(data,direction), 
+    interact(display_slice(data,direction, fix_range=fix_range, data_range=data_range), 
          x=widgets.IntSlider(min=0, max=data.shape[direction]-1, step=1, 
                              value=0, continuous_update=False));
     

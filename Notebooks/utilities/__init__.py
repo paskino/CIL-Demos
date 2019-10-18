@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt
 from matplotlib import gridspec
 import numpy
 
-def display_slice(container, direction, title='Title '):
+def display_slice(container, direction, title, cmap, minmax):
     
+        
     def get_slice_3D(x):
         
         if direction == 0:
@@ -21,8 +22,9 @@ def display_slice(container, direction, title='Title '):
         gs = gridspec.GridSpec(1, 2, figure=fig, width_ratios=(1,.05))
         # image
         ax = fig.add_subplot(gs[0, 0])
-        aximg = ax.imshow(img)
-        ax.set_title("{} {}".format(title, x))
+        aximg = ax.imshow(img, cmap=cmap)
+        aximg.set_clim(minmax)
+        ax.set_title(title + " {}".format(x))
         # colorbar
         ax = fig.add_subplot(gs[0, 1])
         plt.colorbar(aximg, cax=ax)
@@ -31,7 +33,7 @@ def display_slice(container, direction, title='Title '):
         
     return get_slice_3D
     
-def islicer(data, direction, title=""):
+def islicer(data, direction, title="", cmap='viridis', minmax=None):
     '''Creates an interactive integer slider that slices a 3D volume along direction
     
     :param data: DataContainer or numpy array
@@ -51,15 +53,29 @@ def islicer(data, direction, title=""):
     slider = widgets.IntSlider(min=0, max=data.shape[direction]-1, step=1, 
                              value=0, continuous_update=False)
 
-
-    interact(display_slice(container, direction, title=title), x=slider);
+    if minmax is None:
+        amax = container.max()
+        amin = container.min()
+    else:
+        amin = min(minmax)
+        amax = max(minmax)
+    
+    interact(display_slice(container, 
+                           direction, 
+                           title=title, 
+                           cmap=cmap, 
+                           minmax=(amin, amax)),
+             x=slider);
     return slider
     
 
 def link_islicer(*args):
     '''links islicers IntSlider widgets'''
     linked = [(widg, 'value') for widg in args]
-    widgets.link(*linked)
+    # link pair-wise
+    pairs = [(linked[i+1],linked[i]) for i in range(len(linked)-1)]
+    for pair in pairs:
+        widgets.link(*pair)
     
 
 def setup_iplot2D(x_init):
@@ -78,13 +94,3 @@ def setup_iplot2D(x_init):
     
 
 
-def iplot2D(fig, ax, im, iterations, residuals):
-    '''callback to change the matplotlib figure created with setup_iplot2D'''
-    def update(iteration, last_objective, x):
-        residuals.append(last_objective)
-        iterations.append(iteration)
-        ax.clear()
-        ax.plot(iterations, residuals)
-        im.imshow(x.as_array())
-        fig.canvas.draw()
-    return update

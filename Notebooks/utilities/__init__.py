@@ -8,9 +8,10 @@ from matplotlib import gridspec
 import numpy
 import numpy as np
 
-def display_slice(datacontainer, direction, title='Title ', fix_range=False,data_range=None):
-    container = datacontainer.as_array()
+def display_slice(container, direction, title, cmap, minmax):
     
+        
+
     def get_slice_3D(x):
         
         if direction == 0:
@@ -19,40 +20,66 @@ def display_slice(datacontainer, direction, title='Title ', fix_range=False,data
             img = container[:,x,:]
         elif direction == 2:
             img = container[:,:,x]
+        
         fig = plt.figure()
         gs = gridspec.GridSpec(1, 2, figure=fig, width_ratios=(1,.05))
         # image
         ax = fig.add_subplot(gs[0, 0])
-        aximg = ax.imshow(img)
-        ax.set_title(title + "slice {}".format(x))
-        
+        aximg = ax.imshow(img, cmap=cmap)
+        aximg.set_clim(minmax)
+        ax.set_title(title + " {}".format(x))
         # colorbar
         ax = fig.add_subplot(gs[0, 1])
         plt.colorbar(aximg, cax=ax)
-        
-        if(fix_range == True):
-            aximg.set_clim(data_range[0], data_range[1])
-           
-        plt.tight_layout()          
-        plt.show()
+        plt.tight_layout()
+        plt.show(fig)
         
     return get_slice_3D
     
-def islicer(data, direction, fix_range=False,data_range=None):
+def islicer(data, direction, title="", cmap='viridis', minmax=None):
+
     '''Creates an interactive integer slider that slices a 3D volume along direction
     
-    :param data: DataContainer
+    :param data: DataContainer or numpy array
     :param direction: slice direction, int, should be 0,1,2 or the axis label
+    :param title: optional title for the display
     '''
-    if data_range is None:
-        data_range = (np.amin(data.as_array()), np.amax(data.as_array()))
-   
-    if direction in data.dimension_labels.values():
-        direction = data.get_dimension_axis(direction)
-    interact(display_slice(data,direction, fix_range=fix_range, data_range=data_range), 
-         x=widgets.IntSlider(min=0, max=data.shape[direction]-1, step=1, 
-                             value=0, continuous_update=False));
     
+    if hasattr(data, "as_array"):
+        container = data.as_array()
+        if not isinstance (direction, int):
+            if direction in data.dimension_labels.values():
+                direction = data.get_dimension_axis(direction)
+    elif isinstance (data, numpy.ndarray):
+        container = data
+        
+    
+    slider = widgets.IntSlider(min=0, max=data.shape[direction]-1, step=1, 
+                             value=0, continuous_update=False)
+
+    if minmax is None:
+        amax = container.max()
+        amin = container.min()
+    else:
+        amin = min(minmax)
+        amax = max(minmax)
+    
+    interact(display_slice(container, 
+                           direction, 
+                           title=title, 
+                           cmap=cmap, 
+                           minmax=(amin, amax)),
+             x=slider);
+    return slider
+    
+
+def link_islicer(*args):
+    '''links islicers IntSlider widgets'''
+    linked = [(widg, 'value') for widg in args]
+    # link pair-wise
+    pairs = [(linked[i+1],linked[i]) for i in range(len(linked)-1)]
+    for pair in pairs:
+        widgets.link(*pair)
     
 
 def setup_iplot2D(x_init):
@@ -69,19 +96,6 @@ def setup_iplot2D(x_init):
     iterations = []
     return fig, ax, im, iterations, residuals
     
-
-
-def iplot2D(fig, ax, im, iterations, residuals):
-    '''callback to change the matplotlib figure created with setup_iplot2D'''
-    def update(iteration, last_objective, x):
-        residuals.append(last_objective)
-        iterations.append(iteration)
-        ax.clear()
-        ax.plot(iterations, residuals)
-        im.imshow(x.as_array())
-        fig.canvas.draw()
-    return update
-
 def plotter2D(datacontainers, titles, fix_range=False, stretch_y=False):
     '''plotter2D(datacontainers, titles, fix_range=False, stretch_y=False)
     
@@ -140,3 +154,4 @@ def plotter2D(datacontainers, titles, fix_range=False, stretch_y=False):
         
         if fix_range == True:
             sp.set_clim(range_min,range_max)
+

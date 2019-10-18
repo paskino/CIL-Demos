@@ -8,7 +8,6 @@ import numpy
 
 def display_slice(container, direction, title='Title '):
     
-        
     def get_slice_3D(x):
         
         if direction == 0:
@@ -23,7 +22,7 @@ def display_slice(container, direction, title='Title '):
         # image
         ax = fig.add_subplot(gs[0, 0])
         aximg = ax.imshow(img)
-        ax.set_title(title + "slice {}".format(x))
+        ax.set_title("{} {}".format(title, x))
         # colorbar
         ax = fig.add_subplot(gs[0, 1])
         plt.colorbar(aximg, cax=ax)
@@ -87,45 +86,5 @@ def iplot2D(fig, ax, im, iterations, residuals):
         ax.clear()
         ax.plot(iterations, residuals)
         im.imshow(x.as_array())
-        fig.canvas.draw()
-    return update
-
-
-def dothis(x, **kwargs):
-    sliceno = kwargs.get('sliceno', 0)
-    cmd = "x.subset("
-    for k,v in kwargs.items():
-        # print (k,v)
-        if k in x.dimension_labels.values():
-            cmd += "{}={}".format(k,sliceno)
-            break
-    cmd += ")"
-    # print (cmd)
-    return eval(cmd)
-
-def setup_iplot3D(x_init, **kwargs):
-    '''creates a matplotlib figure'''
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    plt.ion()
-    im = fig.add_subplot(122)
-    im.imshow(dothis(x_init, **kwargs).as_array())
-    fig.show()
-    fig.canvas.draw()
-
-    residuals = []
-    iterations = []
-    return fig, ax, im, iterations, residuals
-    
-def iplot3D(fig, ax, im, iterations, residuals, **kwargs):
-    '''callback to change the matplotlib figure created with setup_iplot2D'''
-    
-    
-    def update(iteration, last_objective, x):
-        residuals.append(last_objective)
-        iterations.append(iteration)
-        ax.clear()
-        ax.plot(iterations, residuals)
-        im.imshow(dothis(x, **kwargs).as_array())
         fig.canvas.draw()
     return update

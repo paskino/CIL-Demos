@@ -51,7 +51,7 @@ def islicer(data, direction, title="", cmap='viridis', minmax=None):
         
     
     slider = widgets.IntSlider(min=0, max=data.shape[direction]-1, step=1, 
-                             value=0, continuous_update=False)
+                             value=int(data.shape[direction]/2), continuous_update=False)
 
     if minmax is None:
         amax = container.max()
@@ -78,19 +78,6 @@ def link_islicer(*args):
         widgets.link(*pair)
     
 
-def setup_iplot2D(x_init):
-    '''creates a matplotlib figure'''
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    plt.ion()
-    im = fig.add_subplot(122)
-    im.imshow(x_init.as_array())
-    fig.show()
-    fig.canvas.draw()
 
-    residuals = []
-    iterations = []
-    return fig, ax, im, iterations, residuals
-    
 
 

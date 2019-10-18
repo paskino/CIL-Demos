@@ -33,7 +33,7 @@ def display_slice(container, direction, title, cmap, minmax):
         
     return get_slice_3D
     
-def islicer(data, direction, title="", cmap='viridis', minmax=None):
+def islicer(data, direction, title="", cmap='viridis', minmax=None, **kwargs):
     '''Creates an interactive integer slider that slices a 3D volume along direction
     
     :param data: DataContainer or numpy array
@@ -48,10 +48,11 @@ def islicer(data, direction, title="", cmap='viridis', minmax=None):
                 direction = data.get_dimension_axis(direction)
     elif isinstance (data, numpy.ndarray):
         container = data
-        
+      
+    slice_number = kwargs.get( 'slice_number', 0)    
     
     slider = widgets.IntSlider(min=0, max=data.shape[direction]-1, step=1, 
-                             value=0, continuous_update=False)
+                             value=slice_number, continuous_update=False)
 
     if minmax is None:
         amax = container.max()

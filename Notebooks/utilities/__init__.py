@@ -32,6 +32,7 @@ def display_slice(container, direction, title, cmap, minmax):
         plt.show(fig)
         
     return get_slice_3D
+
     
 def islicer(data, direction, title="", cmap='viridis', minmax=None, **kwargs):
     '''Creates an interactive integer slider that slices a 3D volume along direction
@@ -77,7 +78,6 @@ def link_islicer(*args):
     pairs = [(linked[i+1],linked[i]) for i in range(len(linked)-1)]
     for pair in pairs:
         widgets.link(*pair)
-    
 
 def setup_iplot2D(x_init):
     '''creates a matplotlib figure'''

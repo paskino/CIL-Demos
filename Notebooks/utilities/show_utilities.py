@@ -38,6 +38,8 @@ def show2D(x, title='', **kwargs):
     cax1 = divider.append_axes("right", size="5%", pad=0.1)  
     fig.colorbar(im, ax=ax, cax = cax1)    
     
+
+    
     
 def show3D(x, title , **kwargs):
         
@@ -53,7 +55,7 @@ def show3D(x, title , **kwargs):
     
     labels = kwargs.get('labels', ['x','y','z'])     
             
-    title_subplot = ['Axial','Coronal','Sagittal']
+    title_subplot = kwargs.get('title_subplot',['Axial','Coronal','Sagittal'])
 
     fig, axs = plt.subplots(1, 3, figsize = figure_size)
     
@@ -67,7 +69,7 @@ def show3D(x, title , **kwargs):
     cax1 = divider.append_axes("right", size="5%", pad=0.1)      
     fig.colorbar(im1, ax=axs[0], cax = cax1)   
     
-    im2 = axs[1].imshow(tmp[:,show_slices[0],:], cmap=cmap)
+    im2 = axs[1].imshow(tmp[:,show_slices[1],:], cmap=cmap)
     axs[1].set_title(title_subplot[1], fontsize = font_size[0])
     axs[1].set_xlabel(labels[0], fontsize = font_size[1])
     axs[1].set_ylabel(labels[2], fontsize = font_size[1])
@@ -75,7 +77,7 @@ def show3D(x, title , **kwargs):
     cax1 = divider.append_axes("right", size="5%", pad=0.1)       
     fig.colorbar(im2, ax=axs[1], cax = cax1)   
 
-    im3 = axs[2].imshow(tmp[:,:,show_slices[0]], cmap=cmap)
+    im3 = axs[2].imshow(tmp[:,:,show_slices[2]], cmap=cmap)
     axs[2].set_title(title_subplot[2], fontsize = font_size[0]) 
     axs[2].set_xlabel(labels[1], fontsize = font_size[1])
     axs[2].set_ylabel(labels[2], fontsize = font_size[1])

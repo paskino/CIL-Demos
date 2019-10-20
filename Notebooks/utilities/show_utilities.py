@@ -111,7 +111,7 @@ def show2D_channels(x, title, show_channels, **kwargs):
     labels = kwargs.get('labels', ['x','y']) 
     
     if len(show_channels)==1:
-        show2D(x.subset(channel=int(x.shape[0]/2)), 'Energy {}'.format(channel_to_energy(show_channels[0])) + " keV", **kwargs)        
+        show2D(x.subset(channel=int(x.shape[0]/2)), title + ': Energy {}'.format(channel_to_energy(show_channels[0])) + " keV", **kwargs)        
     else:
         
         fig, axs = plt.subplots(1, len(show_channels), sharey=True, figsize = figure_size)    
@@ -129,7 +129,7 @@ def show2D_channels(x, title, show_channels, **kwargs):
         
 def show3D_channels(x, title = None, show_channels = 0, **kwargs):
     
-    show3D(x.subset(channel=show_channels), 'Energy {}'.format(channel_to_energy(show_channels))  + " keV", **kwargs)        
+    show3D(x.subset(channel=show_channels), title + ': Energy {}'.format(channel_to_energy(show_channels))  + " keV", **kwargs)        
         
 def show(x, title = None, show_channels = [1], **kwargs):
     

@@ -32,25 +32,13 @@ def display_slice(container, direction, title, cmap, minmax):
         
     return get_slice_3D
     
-<<<<<<< HEAD
 def islicer(data, direction, title="", cmap='viridis', minmax=None):
-=======
-def islicer(data, direction,title='Title'):
->>>>>>> 09e8f684290855b67d560ce3a87aa7ae69a184b4
     '''Creates an interactive integer slider that slices a 3D volume along direction
     
     :param data: DataContainer or numpy array
     :param direction: slice direction, int, should be 0,1,2 or the axis label
     :param title: optional title for the display
     '''
-<<<<<<< HEAD
-=======
-    if direction in data.dimension_labels.values():
-        direction = data.get_dimension_axis(direction)
-    interact(display_slice(data,direction,title), 
-         x=widgets.IntSlider(min=0, max=data.shape[direction]-1, step=1, 
-                             value=0, continuous_update=False));
->>>>>>> 09e8f684290855b67d560ce3a87aa7ae69a184b4
     
     if hasattr(data, "as_array"):
         container = data.as_array()

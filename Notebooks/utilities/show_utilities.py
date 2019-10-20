@@ -149,7 +149,7 @@ def show(x, title = None, show_channels = [1], **kwargs):
             show2D_channels(x, title, show_channels,  **kwargs)
             
         elif len(x.shape[1:]) == 3:
-            show3D_channels(x, title, **kwargs)  
+            show3D_channels(x, title, show_channels,  **kwargs)  
             
             
             

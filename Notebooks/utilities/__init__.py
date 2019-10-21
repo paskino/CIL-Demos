@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib import gridspec
 import numpy
 
-def display_slice(container, direction, title, cmap, minmax, figsize):
+def display_slice(container, direction, title, cmap, minmax):
     
         
     def get_slice_3D(x):
@@ -18,7 +18,7 @@ def display_slice(container, direction, title, cmap, minmax, figsize):
         elif direction == 2:
             img = container[:,:,x]
         
-        fig = plt.figure(figsize = figsize)
+        fig = plt.figure()
         gs = gridspec.GridSpec(1, 2, figure=fig, width_ratios=(1,.05))
         # image
         ax = fig.add_subplot(gs[0, 0])
@@ -55,7 +55,7 @@ def islicer(data, direction, title="", cmap='viridis', minmax=None, **kwargs):
     slider = widgets.IntSlider(min=0, max=data.shape[direction]-1, step=1, 
                              value=slice_number, continuous_update=False)
 
-    figure_size  =kwargs.get( 'figure_size', (10,10))
+    figure_size = kwargs.get('figure_size', (10,10))
     
     if minmax is None:
         amax = container.max()
@@ -69,7 +69,6 @@ def islicer(data, direction, title="", cmap='viridis', minmax=None, **kwargs):
                            title=title, 
                            cmap=cmap,
                            minmax=(amin, amax)),
-                            figsize = figure_size,
              x=slider);
     return slider
     

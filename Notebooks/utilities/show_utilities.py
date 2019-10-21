@@ -118,7 +118,7 @@ def show2D_channels(x, title, show_channels, **kwargs):
     
         for i in range(len(show_channels)):
             im = axs[i].imshow(x.subset(channel=i).as_array(), cmap = cmap)
-            axs[i].set_title('Channel {}'.format(channel_to_energy(show_channels[i])), fontsize = font_size[0])
+            axs[i].set_title('Energy {}'.format(channel_to_energy(show_channels[i])) + "keV", fontsize = font_size[0])
             axs[i].set_xlabel(labels[i], fontsize = font_size[1])
             divider = make_axes_locatable(axs[i])
             cax1 = divider.append_axes("right", size="5%", pad=0.1)    

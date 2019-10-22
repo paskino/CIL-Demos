@@ -122,11 +122,11 @@ elif noise == 'gaussian':
 
 # fidelity
 if noise == 's&p':
-    f2 = L1Norm(b=noisy_data)
+    f2 = L1Norm(noisy_data)
 elif noise == 'poisson':
     f2 = KullbackLeibler(noisy_data)
 elif noise == 'gaussian':
-    f2 = 0.5 * L2NormSquared(b=noisy_data)
+    f2 = 0.5 * L2NormSquared(noisy_data)
 
 if method == '0':
 

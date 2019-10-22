@@ -79,20 +79,20 @@ fid = KullbackLeibler(noisy_data)
 def KL_Prox_PosCone(x, tau, out=None):
         
     if out is None: 
-        tmp = 0.5 *( (x - fid.bnoise - tau) + ( (x + fid.bnoise - tau)**2 + 4*tau*fid.b   ) .sqrt() )
+        tmp = 0.5 *( (x - fid.background_term - tau) + ( (x + fid.background_term - tau)**2 + 4*tau*fid.data   ) .sqrt() )
         return tmp.maximum(0)
     else:            
-        tmp =  0.5 *( (x - fid.bnoise - tau) + 
-                    ( (x + fid.bnoise - tau)**2 + 4*tau*fid.b   ) .sqrt()
+        tmp =  0.5 *( (x - fid.background_term - tau) + 
+                    ( (x + fid.background_term - tau)**2 + 4*tau*fid.data  ) .sqrt()
                     )
-        x.add(fid.bnoise, out=out)
+        x.add(fid.background_term, out=out)
         out -= tau
         out *= out
-        tmp = fid.b * (4 * tau)
+        tmp = fid.data * (4 * tau)
         out.add(tmp, out=out)
         out.sqrt(out=out)
         
-        x.subtract(fid.bnoise, out=tmp)
+        x.subtract(fid.background_term, out=tmp)
         tmp -= tau
         
         out += tmp

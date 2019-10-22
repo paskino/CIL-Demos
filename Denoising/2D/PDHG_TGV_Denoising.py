@@ -126,19 +126,19 @@ beta = 2 * alpha
 
 # Fidelity
 if noise == 's&p':
-    f3 = L1Norm(b=noisy_data)
+    f3 = L1Norm(noisy_data)
 elif noise == 'poisson':
     f3 = KullbackLeibler(noisy_data)
 elif noise == 'gaussian':
-    f3 = 0.5 * L2NormSquared(b=noisy_data)
+    f3 = 0.5 * L2NormSquared(noisy_data)
 
-if method == '0':
+if method == '1':
     
     # Create operators
     op11 = Gradient(ig)
     op12 = Identity(op11.range_geometry())
     
-    op22 = SymmetrizedGradient(op11.domain_geometry())    
+    op22 = SymmetrizedGradient(op11.range_geometry())    
     op21 = ZeroOperator(ig, op22.range_geometry())
         
     op31 = Identity(ig, ag)
@@ -157,7 +157,7 @@ else:
     # Create operators
     op11 = Gradient(ig)
     op12 = Identity(op11.range_geometry())
-    op22 = SymmetrizedGradient(op11.domain_geometry())    
+    op22 = SymmetrizedGradient(op11.range_geometry())    
     op21 = ZeroOperator(ig, op22.range_geometry())    
     
     operator = BlockOperator(op11, -1*op12, op21, op22, shape=(2,2) )      
@@ -181,14 +181,15 @@ pdhg.max_iteration = 2000
 pdhg.update_objective_interval = 100
 pdhg.run(2000)
 
+
 # Show results
 plt.figure(figsize=(20,5))
 plt.subplot(1,4,1)
-plt.imshow(data.subset(channel=0).as_array())
+plt.imshow(data.as_array())
 plt.title('Ground Truth')
 plt.colorbar()
 plt.subplot(1,4,2)
-plt.imshow(noisy_data.subset(channel=0).as_array())
+plt.imshow(noisy_data.as_array())
 plt.title('Noisy Data')
 plt.colorbar()
 plt.subplot(1,4,3)

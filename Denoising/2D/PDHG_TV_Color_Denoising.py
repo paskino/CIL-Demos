@@ -98,11 +98,11 @@ f1 =  alpha * MixedL21Norm()
 
 # fidelity
 if noise == 's&p':
-    g = L1Norm(b=noisy_data)
+    g = L1Norm(noisy_data)
 elif noise == 'poisson':
     g = KullbackLeibler(noisy_data)
 elif noise == 'gaussian':
-    g = 0.5 * L2NormSquared(b=noisy_data)
+    g = 0.5 * L2NormSquared(noisy_data)
             
 # Compute operator Norm
 normK = operator.norm()

@@ -92,7 +92,7 @@ alpha = 0.05
 # Setup and run the PDHG algorithm
 operator = Gradient(ig)
 f =  alpha * MixedL21Norm()
-g =  0.5 * L2NormSquared(b = noisy_data)
+g =  0.5 * L2NormSquared(noisy_data)
             
 normK = operator.norm()
 

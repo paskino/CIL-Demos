@@ -116,7 +116,7 @@ operator2 = BlockOperator(op2, op3, shape=(2,1) )
 
 # Create functions     
 f1 = alpha * MixedL21Norm()
-f2 = 0.5 * L2NormSquared(b = noisy_data)    
+f2 = 0.5 * L2NormSquared(noisy_data)    
 f = BlockFunction(f1, f2)                                                                          
 g = ZeroFunction()
     

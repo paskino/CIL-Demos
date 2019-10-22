@@ -118,7 +118,7 @@ cgls.run(500, verbose = True)
 print("Running PDHG reconstruction")
 
 operator = Aop
-f = L2NormSquared(b = sinogram)
+f = L2NormSquared(sinogram)
 g = ZeroFunction()
 
 ## Compute operator Norm
@@ -140,7 +140,7 @@ pdhg.run(1000, verbose=True)
 # Setup and run the FISTA algorithm 
 print("Running FISTA reconstruction")
 
-fidelity = FunctionOperatorComposition(L2NormSquared(b=sinogram), Aop)
+fidelity = FunctionOperatorComposition(L2NormSquared(sinogram), Aop)
 regularizer = ZeroFunction()
 
 fista = FISTA()

@@ -133,7 +133,7 @@ if noise == 'poisson':
 elif noise == 'gaussian':   
     
     alpha = 10
-    f2 = 0.5 * L2NormSquared(b=noisy_data)                                         
+    f2 = 0.5 * L2NormSquared(noisy_data)                                         
     g = ZeroFunction()
     sigma = 10
     tau = 1/(sigma*normK**2) 

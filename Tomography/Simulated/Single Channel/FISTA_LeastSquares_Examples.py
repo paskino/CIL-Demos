@@ -87,7 +87,7 @@ noisy_data = AcquisitionData(sin.as_array() + np.random.normal(0,1,ag.shape))
 back_proj = Aop.adjoint(noisy_data)
 
 # Define Least Squares
-f = FunctionOperatorComposition(L2NormSquared(b=noisy_data), Aop)
+f = FunctionOperatorComposition(L2NormSquared(noisy_data), Aop)
 
 # Allocate solution
 x_init = ig.allocate()
@@ -109,7 +109,7 @@ alpha = 20
 Grad = Gradient(ig)
 block_op = BlockOperator( Aop, alpha * Grad, shape=(2,1))
 block_data = BlockDataContainer(noisy_data, Grad.range_geometry().allocate())
-f1 = FunctionOperatorComposition(L2NormSquared(b=block_data), block_op)
+f1 = FunctionOperatorComposition(L2NormSquared(block_data), block_op)
 
 fista1 = FISTA(x_init = x_init, f = f1, g = IndicatorBox(lower=0,upper=1))
 fista1.max_iteration = 2000

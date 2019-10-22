@@ -90,7 +90,7 @@ cgls.run(1000,verbose=False)
 op_PDHG = BlockOperator(Grad, Aop, shape=(2,1) ) 
 # Create functions     
 f1 = 0.5 * alpha**2 * L2NormSquared()
-f2 = 0.5 * L2NormSquared(b = noisy_data)    
+f2 = 0.5 * L2NormSquared(noisy_data)    
 f = BlockFunction(f1, f2)                                       
 g = ZeroFunction()
 

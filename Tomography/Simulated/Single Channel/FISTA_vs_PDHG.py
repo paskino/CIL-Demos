@@ -65,7 +65,7 @@ alpha = 5
 ###############################################################################
 # Setup and run the FISTA algorithm
 operator = Gradient(ig)
-fidelity = L1Norm(b=noisy_data)
+fidelity = L1Norm(noisy_data)
 regulariser = FunctionOperatorComposition(alpha * L2NormSquared(), operator)
 
 x_init = ig.allocate()

@@ -128,7 +128,7 @@ plt.show()
 op11 = Gradient(ig)
 op12 = Identity(op11.range_geometry())
 
-op22 = SymmetrizedGradient(op11.domain_geometry())    
+op22 = SymmetrizedGradient(op11.range_geometry())    
 op21 = ZeroOperator(ig, op22.range_geometry())
     
 op31 = Aop
@@ -151,7 +151,7 @@ if noise == 'poisson':
 elif noise == 'gaussian':   
     alpha = 20
     beta = 50
-    f3 = 0.5 * L2NormSquared(b=noisy_data)                                         
+    f3 = 0.5 * L2NormSquared(noisy_data)                                         
     g = BlockFunction(ZeroFunction(), ZeroFunction())
     
     # Primal & dual stepsizes

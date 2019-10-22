@@ -24,7 +24,7 @@ N = 128
 numchannels = 3
 
 ig = ImageGeometry(voxel_num_x=N,voxel_num_y=N,channels=numchannels)
-Phantom = ImageData(geometry=ig)
+Phantom = ig.allocate()
 
 x = Phantom.as_array()
 x[0 , round(N/4):round(3*N/4) , round(N/4):round(3*N/4)  ] = 1.0
@@ -54,6 +54,7 @@ det_num = N
 SourceOrig = 200
 OrigDetec = 0
 
+#%%
 if test_case==1:
     angles = numpy.linspace(0,numpy.pi,angles_num,endpoint=False)
     ag = AcquisitionGeometry('parallel',
@@ -96,6 +97,8 @@ for k in range(3):
     axarro[k].imshow(z.as_array()[k],vmin=0,vmax=3500)
 plt.show()
 
+#%%
+
 # Using the test data b, different reconstruction methods can now be set up as
 # demonstrated in the rest of this file. In general all methods need an initial 
 # guess and some algorithm options to be set:
@@ -105,7 +108,7 @@ opt = {'tol': 1e-4, 'iter': 200}
 # Create least squares object instance with projector, test data and a constant 
 # coefficient of 0.5. Note it is least squares over all channels:
 #f = Norm2Sq(Aop,b,c=0.5)
-f = FunctionOperatorComposition(L2NormSquared(b=b), Aop)
+f = FunctionOperatorComposition(L2NormSquared(b), Aop)
 # Run FISTA for least squares without regularization
 FISTA_alg = FISTA()
 FISTA_alg.set_up(x_init=x_init, f=f, g=ZeroFunction())
@@ -123,6 +126,8 @@ plt.figure()
 plt.semilogy(FISTA_alg.objective)
 plt.title('Criterion vs iterations, least squares')
 plt.show()
+
+#%%
 
 # FISTA can also solve regularised forms by specifying a second function object
 # such as 1-norm regularisation with choice of regularisation parameter lam. 

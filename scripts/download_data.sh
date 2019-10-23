@@ -67,8 +67,8 @@ download ${URL} ${filename1} ${suffix}
 # make symbolic links in the normal demo directory
 if test -z "$SIRF_INSTALL_PATH"
 then
-    echo "SIRF_INSTALL_PATH environment variable not set. Exiting."
-    exit 1
+    echo "SIRF_INSTALL_PATH environment variable not set. Using sys.prefix."
+    SIRF_INSTALL_PATH=`python -c "from __future__ import print_function; import sys; print (sys.prefix)"`
 fi
 
 final_dest=$SIRF_INSTALL_PATH/share/ccpi

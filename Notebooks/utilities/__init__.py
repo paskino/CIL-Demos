@@ -22,6 +22,12 @@ def display_slice(container, direction, title, cmap, minmax, size):
         else:
             fig = plt.figure(figsize=size)
 
+        if minmax == 'slice':		
+￼           minmax = (img.min(), img.max())		
+￼       elif minmax == 'global':		
+￼           minmax = (container.min(),container.max())
+        else:
+            pass
         gs = gridspec.GridSpec(1, 2, figure=fig, width_ratios=(1,.05), height_ratios=(1,))
         # image
         ax = fig.add_subplot(gs[0, 0])
@@ -37,15 +43,17 @@ def display_slice(container, direction, title, cmap, minmax, size):
     return get_slice_3D
 
     
-def islicer(data, direction, title="", slice_number=None, cmap='gnuplot', minmax=None, size=None, **kwargs):
+def islicer(data, direction, title="", slice_number=None, cmap='inferno', minmax='global', size=None):
 
     '''Creates an interactive integer slider that slices a 3D volume along direction
     
     :param data: DataContainer or numpy array
     :param direction: slice direction, int, should be 0,1,2 or the axis label
     :param title: optional title for the display
+    :slice_number: int start slice number, optional. If None defaults to center slice
     :param cmap: matplotlib color map
     :param minmax: colorbar min and max values, defaults to min max of container
+    :param size: int or tuple specifying the figure size in inch. If int it specifies the width and scales the height keeping the standard matplotlib aspect ratio 
     '''
     
     if hasattr(data, "as_array"):
@@ -61,11 +69,8 @@ def islicer(data, direction, title="", slice_number=None, cmap='gnuplot', minmax
     slider = widgets.IntSlider(min=0, max=data.shape[direction]-1, step=1, 
                              value=slice_number, continuous_update=False)
 
-    figure_size = kwargs.get('figure_size', (10,10))
-    
-    if minmax is None:
-        amax = container.max()
-        amin = container.min()
+    if minmax in ['global', 'slice']:
+        pass
     else:
         amin = min(minmax)
         amax = max(minmax)

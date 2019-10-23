@@ -97,3 +97,8 @@ def setup_iplot2D(x_init):
     
 
 
+def psnr(img1, img2, data_range=1):
+    mse = numpy.mean( (img1 - img2) ** 2 )
+    if mse == 0:
+        return 1000
+    return 20 * numpy.log10(data_range / numpy.sqrt(mse))

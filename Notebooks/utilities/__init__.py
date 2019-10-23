@@ -41,8 +41,10 @@ def display_slice(container, direction, title, cmap, minmax, size):
         plt.show(fig)
         
     return get_slice_3D
+
     
 def islicer(data, direction, title="", slice_number=None, cmap='gnuplot', minmax=None, size=None):
+
     '''Creates an interactive integer slider that slices a 3D volume along direction
     
     :param data: DataContainer or numpy array
@@ -65,6 +67,8 @@ def islicer(data, direction, title="", slice_number=None, cmap='gnuplot', minmax
     slider = widgets.IntSlider(min=0, max=data.shape[direction]-1, step=1, 
                              value=slice_number, continuous_update=False)
 
+    figure_size = kwargs.get('figure_size', (10,10))
+    
     if minmax is None:
         amax = container.max()
         amin = container.min()
@@ -93,8 +97,12 @@ def link_islicer(*args):
     pairs = [(linked[i+1],linked[i]) for i in range(len(linked)-1)]
     for pair in pairs:
         widgets.link(*pair)
-    
 
 
 
 
+def psnr(img1, img2, data_range=1):
+    mse = numpy.mean( (img1 - img2) ** 2 )
+    if mse == 0:
+        return 1000
+    return 20 * numpy.log10(data_range / numpy.sqrt(mse))

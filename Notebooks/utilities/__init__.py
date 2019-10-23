@@ -21,24 +21,23 @@ def display_slice(container, direction, title, cmap, minmax, size):
             fig = plt.figure()
         else:
             fig = plt.figure(figsize=size)
-            
-            
+             
         if minmax == 'slice':
             minmax = (img.min(), img.max())
         elif minmax == 'global':
             minmax = (container.min(),container.max())
-        elif 
-        gs = gridspec.GridSpec(1, 2, figure=fig, width_ratios=(1,.05), height_ratios=(1,))
-        # image
-        ax = fig.add_subplot(gs[0, 0])
-        aximg = ax.imshow(img, cmap=cmap)
-        aximg.set_clim(minmax)
-        ax.set_title(title + " {}".format(x))
-        # colorbar
-        ax = fig.add_subplot(gs[0, 1])
-        plt.colorbar(aximg, cax=ax)
-        plt.tight_layout()
-        plt.show(fig)
+        else:
+            gs = gridspec.GridSpec(1, 2, figure=fig, width_ratios=(1,.05), height_ratios=(1,))
+            # image
+            ax = fig.add_subplot(gs[0, 0])
+            aximg = ax.imshow(img, cmap=cmap)
+            aximg.set_clim(minmax)
+            ax.set_title(title + " {}".format(x))
+            # colorbar
+            ax = fig.add_subplot(gs[0, 1])
+            plt.colorbar(aximg, cax=ax)
+            plt.tight_layout()
+            plt.show(fig)
         
     return get_slice_3D
 

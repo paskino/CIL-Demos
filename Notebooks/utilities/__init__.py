@@ -17,17 +17,14 @@ def display_slice(container, direction, title, cmap, minmax, size):
             img = container[:,x,:]
         elif direction == 2:
             img = container[:,:,x]
+        
+        
         if size is None:
             fig = plt.figure()
         else:
             fig = plt.figure(figsize=size)
 
-        if minmax == 'slice':
-            minmax = (img.min(), img.max())
-        elif minmax == 'global':
-            minmax = (container.min(), container.max())
-        else:
-            pass
+        
         gs = gridspec.GridSpec(1, 2, figure=fig, width_ratios=(1,.05), height_ratios=(1,))
         # image
         ax = fig.add_subplot(gs[0, 0])
@@ -43,7 +40,7 @@ def display_slice(container, direction, title, cmap, minmax, size):
     return get_slice_3D
 
     
-def islicer(data, direction, title="", slice_number=None, cmap='inferno', minmax='global', size=None):
+def islicer(data, direction, title="", slice_number=None, cmap='inferno', minmax=None, size=None):
 
     '''Creates an interactive integer slider that slices a 3D volume along direction
     
@@ -69,8 +66,9 @@ def islicer(data, direction, title="", slice_number=None, cmap='inferno', minmax
     slider = widgets.IntSlider(min=0, max=data.shape[direction]-1, step=1, 
                              value=slice_number, continuous_update=False)
 
-    if minmax in ['global', 'slice']:
-        pass
+    if minmax is None:
+        amax = container.max()
+        amin = container.min()
     else:
         amin = min(minmax)
         amax = max(minmax)

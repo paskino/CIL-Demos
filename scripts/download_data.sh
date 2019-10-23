@@ -71,7 +71,7 @@ then
     exit 1
 fi
 
-final_dest=$SIRF_INSTALL_PATH/data/examples/MR
+final_dest=$SIRF_INSTALL_PATH/share/ccpi
 echo "Creating symbolic links in ${final_dest} "
 
 cd ${final_dest}

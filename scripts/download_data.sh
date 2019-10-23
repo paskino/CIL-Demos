@@ -73,7 +73,7 @@ fi
 
 final_dest=$SIRF_INSTALL_PATH/share/ccpi
 echo "Creating symbolic links in ${final_dest} "
-
+mkdir -p ${final_dest}
 cd ${final_dest}
 rm -f ${filename1}
 ln -s ${destination}/${filename1}

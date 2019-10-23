@@ -21,7 +21,7 @@ def display_slice(container, direction, title, cmap, minmax, size):
             fig = plt.figure()
         else:
             fig = plt.figure(figsize=size)
-                  
+
         gs = gridspec.GridSpec(1, 2, figure=fig, width_ratios=(1,.05), height_ratios=(1,))
         # image
         ax = fig.add_subplot(gs[0, 0])
@@ -37,7 +37,7 @@ def display_slice(container, direction, title, cmap, minmax, size):
     return get_slice_3D
 
     
-def islicer(data, direction, title="", slice_number=None, cmap='gnuplot', minmax=None, size=None):
+def islicer(data, direction, title="", slice_number=None, cmap='gnuplot', minmax=None, size=None, **kwargs):
 
     '''Creates an interactive integer slider that slices a 3D volume along direction
     
@@ -61,8 +61,7 @@ def islicer(data, direction, title="", slice_number=None, cmap='gnuplot', minmax
     slider = widgets.IntSlider(min=0, max=data.shape[direction]-1, step=1, 
                              value=slice_number, continuous_update=False)
 
-    #figure_size = kwargs.get('figure_size', (10,10))
-    figure_size= (10,10)
+    figure_size = kwargs.get('figure_size', (10,10))
     
     if minmax is None:
         amax = container.max()
@@ -92,9 +91,6 @@ def link_islicer(*args):
     pairs = [(linked[i+1],linked[i]) for i in range(len(linked)-1)]
     for pair in pairs:
         widgets.link(*pair)
-
-
-
 
 def psnr(img1, img2, data_range=1):
     mse = numpy.mean( (img1 - img2) ** 2 )
@@ -161,4 +157,3 @@ def plotter2D(datacontainers, titles, fix_range=False, stretch_y=False, cmap='gn
         
         if fix_range == True:
             sp.set_clim(range_min,range_max)
-

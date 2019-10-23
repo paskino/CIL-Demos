@@ -1,5 +1,5 @@
 # imports for plotting
-from __future__ import print_function
+from __future__ import print_function, division
 from ipywidgets import interact, interactive, fixed, interact_manual
 import ipywidgets as widgets
 import matplotlib.pyplot as plt
@@ -22,10 +22,10 @@ def display_slice(container, direction, title, cmap, minmax, size):
         else:
             fig = plt.figure(figsize=size)
 
-        if minmax == 'slice':		
-￼           minmax = (img.min(), img.max())		
-￼       elif minmax == 'global':		
-￼           minmax = (container.min(),container.max())
+        if minmax == 'slice':
+            minmax = (img.min(), img.max())
+        elif minmax == 'global':
+            minmax = (container.min(), container.max())
         else:
             pass
         gs = gridspec.GridSpec(1, 2, figure=fig, width_ratios=(1,.05), height_ratios=(1,))

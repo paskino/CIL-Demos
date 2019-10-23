@@ -50,7 +50,7 @@ URL=https://www.dropbox.com/s/e5nwpne912n86am/
 filename1=sinogram_centered_channels100_140.h5
 suffix=?dl=0
 rm -f ${filename1}.md5 # (re)create md5 checksum
-echo "8f06cacf6b3f4b46435bf8e970e1fe3f ${filename1}" > ${filename1}.md5
+echo "fccb00c33969c3a3ee6dbb915cdc923e ${filename1}" > ${filename1}.md5
 download ${URL} ${filename1} ${suffix}
 
 

@@ -1,17 +1,14 @@
 # imports for plotting
 from __future__ import print_function
-from __future__ import division
 from ipywidgets import interact, interactive, fixed, interact_manual
 import ipywidgets as widgets
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 import numpy
-import numpy as np
 
-def display_slice(container, direction, title, cmap, minmax):
+def display_slice(container, direction, title, cmap, minmax, size):
     
         
-
     def get_slice_3D(x):
         
         if direction == 0:
@@ -20,9 +17,12 @@ def display_slice(container, direction, title, cmap, minmax):
             img = container[:,x,:]
         elif direction == 2:
             img = container[:,:,x]
-        
-        fig = plt.figure()
-        gs = gridspec.GridSpec(1, 2, figure=fig, width_ratios=(1,.05))
+        if size is None:
+            fig = plt.figure()
+        else:
+            fig = plt.figure(figsize=size)
+                  
+        gs = gridspec.GridSpec(1, 2, figure=fig, width_ratios=(1,.05), height_ratios=(1,))
         # image
         ax = fig.add_subplot(gs[0, 0])
         aximg = ax.imshow(img, cmap=cmap)
@@ -35,14 +35,17 @@ def display_slice(container, direction, title, cmap, minmax):
         plt.show(fig)
         
     return get_slice_3D
+
     
-def islicer(data, direction, title="", cmap='viridis', minmax=None):
+def islicer(data, direction, title="", slice_number=None, cmap='gnuplot', minmax=None, size=None):
 
     '''Creates an interactive integer slider that slices a 3D volume along direction
     
     :param data: DataContainer or numpy array
     :param direction: slice direction, int, should be 0,1,2 or the axis label
     :param title: optional title for the display
+    :param cmap: matplotlib color map
+    :param minmax: colorbar min and max values, defaults to min max of container
     '''
     
     if hasattr(data, "as_array"):
@@ -53,10 +56,14 @@ def islicer(data, direction, title="", cmap='viridis', minmax=None):
     elif isinstance (data, numpy.ndarray):
         container = data
         
-    
+    if slice_number is None:
+        slice_number = int(data.shape[direction]/2)
     slider = widgets.IntSlider(min=0, max=data.shape[direction]-1, step=1, 
-                             value=0, continuous_update=False)
+                             value=slice_number, continuous_update=False)
 
+    #figure_size = kwargs.get('figure_size', (10,10))
+    figure_size= (10,10)
+    
     if minmax is None:
         amax = container.max()
         amin = container.min()
@@ -64,11 +71,16 @@ def islicer(data, direction, title="", cmap='viridis', minmax=None):
         amin = min(minmax)
         amax = max(minmax)
     
+    if isinstance (size, (int, float)):
+        default_ratio = 6./8.
+        size = ( size , size * default_ratio )
+    
     interact(display_slice(container, 
                            direction, 
                            title=title, 
                            cmap=cmap, 
-                           minmax=(amin, amax)),
+                           minmax=(amin, amax),
+                           size=size),
              x=slider);
     return slider
     
@@ -80,23 +92,18 @@ def link_islicer(*args):
     pairs = [(linked[i+1],linked[i]) for i in range(len(linked)-1)]
     for pair in pairs:
         widgets.link(*pair)
-    
 
-def setup_iplot2D(x_init):
-    '''creates a matplotlib figure'''
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    plt.ion()
-    im = fig.add_subplot(122)
-    im.imshow(x_init.as_array())
-    fig.show()
-    fig.canvas.draw()
 
-    residuals = []
-    iterations = []
-    return fig, ax, im, iterations, residuals
-    
-def plotter2D(datacontainers, titles, fix_range=False, stretch_y=False):
+
+
+def psnr(img1, img2, data_range=1):
+    mse = numpy.mean( (img1 - img2) ** 2 )
+    if mse == 0:
+        return 1000
+    return 20 * numpy.log10(data_range / numpy.sqrt(mse))
+
+
+def plotter2D(datacontainers, titles, fix_range=False, stretch_y=False, cmap='gnuplot'):
     '''plotter2D(datacontainers, titles, fix_range=False, stretch_y=False)
     
     plots 1 or more 2D plots in an (n x 2) matix
@@ -122,13 +129,13 @@ def plotter2D(datacontainers, titles, fix_range=False, stretch_y=False):
     
     if fix_range == True:
         for i in range(nplots):
-            if type(datacontainers[i]) is np.ndarray:
+            if type(datacontainers[i]) is numpy.ndarray:
                 dc = datacontainers[i]
             else:
                 dc = datacontainers[i].as_array()
                 
-            range_min = min(range_min, np.amin(dc))
-            range_max = max(range_max, np.amax(dc))
+            range_min = min(range_min, numpy.amin(dc))
+            range_max = max(range_max, numpy.amax(dc))
         
     for i in range(rows*2):
         axes[i].set_visible(False)
@@ -137,12 +144,12 @@ def plotter2D(datacontainers, titles, fix_range=False, stretch_y=False):
         axes[i].set_visible(True)
         axes[i].set_title(titles[i])
        
-        if type(datacontainers[i]) is np.ndarray:
+        if type(datacontainers[i]) is numpy.ndarray:
             dc = datacontainers[i]
         else:
             dc = datacontainers[i].as_array()    
         
-        sp = axes[i].imshow(dc)
+        sp = axes[i].imshow(dc, cmap=cmap)
         
         im_ratio = dc.shape[0]/dc.shape[1]
         

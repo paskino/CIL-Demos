@@ -10,6 +10,7 @@ from ccpi.framework import ImageGeometry
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+
 def channel_to_energy(channel):
     # Convert from channel number to energy using calibration linear fit
     m = 0.2786

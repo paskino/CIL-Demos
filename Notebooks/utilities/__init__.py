@@ -150,9 +150,16 @@ def plotter2D(datacontainers, titles, fix_range=False, stretch_y=False, cmap='gn
         if type(datacontainers[i]) is numpy.ndarray:
             dc = datacontainers[i]
         else:
-            dc = datacontainers[i].as_array()    
+            dc = datacontainers[i].as_array()
+            axes[i].set_ylabel(datacontainers[i].dimension_labels[0])
+            axes[i].set_xlabel(datacontainers[i].dimension_labels[1])
         
-        sp = axes[i].imshow(dc, cmap=cmap)
+        axes[i].set_xlim(0,dc.shape[1])
+        axes[i].set_ylim(0,dc.shape[0])
+        
+            
+        sp = axes[i].imshow(dc, cmap=cmap, extent=(0,dc.shape[1],0,dc.shape[0]))
+    
         
         im_ratio = dc.shape[0]/dc.shape[1]
         
